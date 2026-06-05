@@ -4,13 +4,13 @@ import './BossGroupCard.css';
 
 export default function BossGroupCard({ group }) {
   const [expanded, setExpanded] = useState(true);
-  const { set, type, encounters } = group;
+  const { label, bossName, encounters } = group;
 
   return (
     <div className="boss-card">
       <button className="boss-card__header" onClick={() => setExpanded((v) => !v)}>
         <span className="boss-card__title">
-          {set} — <span className="boss-card__type">{type}</span>
+          <span className="boss-card__label">{label}</span> — {bossName}
         </span>
         <span className="boss-card__chevron">{expanded ? '▲' : '▼'}</span>
       </button>

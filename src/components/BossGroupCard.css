@@ -25,7 +25,7 @@
 .boss-card__header:hover {
   background: rgba(0, 200, 255, 0.14);
 }
-.boss-card__type { color: #00c8ff; }
+.boss-card__label { color: #00c8ff; font-weight: 700; }
 .boss-card__chevron { font-size: 0.7rem; color: #00c8ff88; }
 .boss-card__body { padding: 0; }
 .enc-table {

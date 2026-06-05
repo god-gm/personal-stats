@@ -48,8 +48,10 @@ export default function AssignmentsPage() {
   // key: playerId, value: { targetKey → 'consigliato'|'affrontabile'|'sconsigliato' }
   const [assignments, setAssignments] = useState({});
 
-  // Detail popup
+  // Detail popup (boss/mini view)
   const [detailTarget, setDetailTarget] = useState(null); // { key, label }
+  // Player detail popup (player-centric view)
+  const [playerDetailTarget, setPlayerDetailTarget] = useState(null); // { userId, playerName }
 
   // Save / Load
   const [savedList, setSavedList] = useState([]);
@@ -221,6 +223,11 @@ export default function AssignmentsPage() {
     setDetailTarget({ key: targetKey, label });
   }
   function closeDetail() { setDetailTarget(null); }
+
+  function openPlayerDetail(userId, playerName) {
+    setPlayerDetailTarget({ userId, playerName });
+  }
+  function closePlayerDetail() { setPlayerDetailTarget(null); }
 
   // ── Render ───────────────────────────────────────────────────────────────
   const targetKeys = allTargetKeys();
@@ -443,9 +450,10 @@ export default function AssignmentsPage() {
                 <thead>
                   <tr>
                     <th className="assign-th">Player</th>
-                    <th className="assign-th assign-th--count">Consigliati</th>
-                    <th className="assign-th assign-th--count">Affrontabili</th>
-                    <th className="assign-th assign-th--count">Sconsigliati</th>
+                    <th className="assign-th assign-th--count assign-count--cons">Cons.</th>
+                    <th className="assign-th assign-th--count assign-count--aff">Aff.</th>
+                    <th className="assign-th assign-th--count assign-count--scon">Scon.</th>
+                    <th className="assign-th">Dettaglio</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -457,6 +465,14 @@ export default function AssignmentsPage() {
                         <td className="assign-td assign-td--count assign-count--cons">{c}</td>
                         <td className="assign-td assign-td--count assign-count--aff">{a}</td>
                         <td className="assign-td assign-td--count assign-count--scon">{s}</td>
+                        <td className="assign-td">
+                          <button
+                            className="assign-detail-btn"
+                            onClick={() => openPlayerDetail(p.userId, p.playerName)}
+                          >
+                            ▶
+                          </button>
+                        </td>
                       </tr>
                     );
                   })}
@@ -467,7 +483,7 @@ export default function AssignmentsPage() {
         )}
       </main>
 
-      {/* ── Detail popup ───────────────────────────────────────────────────── */}
+      {/* ── Boss/mini detail popup ─────────────────────────────────────────── */}
       {detailTarget && (
         <DetailPopup
           targetKey={detailTarget.key}
@@ -478,7 +494,29 @@ export default function AssignmentsPage() {
           onClose={closeDetail}
         />
       )}
+
+      {/* ── Player detail popup ────────────────────────────────────────────── */}
+      {playerDetailTarget && (
+        <PlayerDetailPopup
+          userId={playerDetailTarget.userId}
+          playerName={playerDetailTarget.playerName}
+          stats={stats}
+          assignments={assignments}
+          setPlayerAssignment={setPlayerAssignment}
+          onClose={closePlayerDetail}
+        />
+      )}
     </div>
+  );
+}
+
+// ── Colored assignment badge ──────────────────────────────────────────────────
+
+function AssignBadge({ value }) {
+  return (
+    <span className={`assign-badge assign-badge--${value}`}>
+      {ASSIGNMENT_LABELS[value]}
+    </span>
   );
 }
 
@@ -527,7 +565,7 @@ function DetailPopup({ targetKey, label, stats, assignments, setPlayerAssignment
                     <td className="detail-td">{ps.attackCount}</td>
                     <td className="detail-td">
                       <select
-                        className="detail-select"
+                        className={`detail-select detail-select--${current}`}
                         value={current}
                         onChange={e => setPlayerAssignment(ps.userId, targetKey, e.target.value)}
                       >
@@ -537,6 +575,83 @@ function DetailPopup({ targetKey, label, stats, assignments, setPlayerAssignment
                       </select>
                     </td>
                   </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Player detail popup component ─────────────────────────────────────────────
+
+function PlayerDetailPopup({ userId, playerName, stats, assignments, setPlayerAssignment, onClose }) {
+  return (
+    <div className="detail-overlay" onClick={onClose}>
+      <div className="detail-modal detail-modal--player" onClick={e => e.stopPropagation()}>
+        <div className="detail-modal__header">
+          <span className="detail-modal__title">{playerName} — assegnazioni</span>
+          <button className="detail-modal__close" onClick={onClose}>✕</button>
+        </div>
+
+        <div className="detail-table-wrap">
+          <table className="detail-table">
+            <thead>
+              <tr>
+                <th>Boss / Mini</th>
+                <th>Assegnazione</th>
+              </tr>
+            </thead>
+            <tbody>
+              {stats.bosses.map(boss => {
+                const bossKey     = boss.apiType;
+                const bossVal     = assignments[userId]?.[bossKey] || 'sconsigliato';
+
+                return (
+                  <React.Fragment key={bossKey}>
+                    {/* Boss row */}
+                    <tr className={`detail-tr detail-tr--${bossVal} detail-tr--boss`}>
+                      <td className="detail-td detail-td--boss">
+                        <span className="assign-level-badge">{boss.levelDesc}</span>
+                        {boss.bossDesc}
+                      </td>
+                      <td className="detail-td">
+                        <select
+                          className={`detail-select detail-select--${bossVal}`}
+                          value={bossVal}
+                          onChange={e => setPlayerAssignment(userId, bossKey, e.target.value)}
+                        >
+                          {ASSIGNMENT_TYPES.map(t => (
+                            <option key={t} value={t}>{ASSIGNMENT_LABELS[t]}</option>
+                          ))}
+                        </select>
+                      </td>
+                    </tr>
+
+                    {/* Mini rows */}
+                    {boss.minis.map(mini => {
+                      const miniKey = `${boss.apiType}__${mini.unitId}`;
+                      const miniVal = assignments[userId]?.[miniKey] || 'sconsigliato';
+                      return (
+                        <tr key={miniKey} className={`detail-tr detail-tr--${miniVal}`}>
+                          <td className="detail-td detail-td--mini">└ {mini.name}</td>
+                          <td className="detail-td">
+                            <select
+                              className={`detail-select detail-select--${miniVal}`}
+                              value={miniVal}
+                              onChange={e => setPlayerAssignment(userId, miniKey, e.target.value)}
+                            >
+                              {ASSIGNMENT_TYPES.map(t => (
+                                <option key={t} value={t}>{ASSIGNMENT_LABELS[t]}</option>
+                              ))}
+                            </select>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </React.Fragment>
                 );
               })}
             </tbody>

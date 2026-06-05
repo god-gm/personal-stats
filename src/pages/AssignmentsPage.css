@@ -238,8 +238,8 @@
 
 .assign-td--count { text-align: center; font-weight: 700; }
 .assign-count--cons  { color: #40c880; }
-.assign-count--aff   { color: #ffa040; }
-.assign-count--scon  { color: #2a5068; }
+.assign-count--aff   { color: #ffd040; }
+.assign-count--scon  { color: #ff5555; }
 
 .assign-td--player { color: #c8d8e8; font-weight: 600; }
 
@@ -358,9 +358,7 @@
 
 .detail-tr { transition: background 0.15s; }
 .detail-tr:hover { background: rgba(0, 200, 255, 0.04); }
-.detail-tr--consigliato  { border-left: 2px solid #40c880; }
-.detail-tr--affrontabile { border-left: 2px solid #ffa040; }
-.detail-tr--sconsigliato { border-left: 2px solid #1a3040; }
+/* detail-tr colors defined below near detail-select */
 
 .detail-td {
   padding: 0.35rem 0.75rem;
@@ -380,5 +378,42 @@
   padding: 0.15rem 0.35rem;
   outline: none;
   cursor: pointer;
+  font-weight: 600;
+  transition: color 0.15s, border-color 0.15s;
 }
-.detail-select option { background: #0a1020; }
+.detail-select option { background: #0a1020; color: #c8d8e8; }
+
+/* Colored select variants based on current value */
+.detail-select--consigliato  { color: #40c880; border-color: rgba(64, 200, 128, 0.35); }
+.detail-select--affrontabile { color: #ffd040; border-color: rgba(255, 208, 64, 0.35); }
+.detail-select--sconsigliato { color: #ff5555; border-color: rgba(255, 85, 85, 0.25); }
+
+/* ── Assignment badge ────────────────────────────────────────────────────── */
+.assign-badge {
+  display: inline-block;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.1rem 0.4rem;
+}
+.assign-badge--consigliato  { color: #40c880; }
+.assign-badge--affrontabile { color: #ffd040; }
+.assign-badge--sconsigliato { color: #ff5555; }
+
+/* ── Detail row colors (left-border accent + subtle bg) ─────────────────── */
+.detail-tr--consigliato  { border-left: 2px solid #40c880; }
+.detail-tr--affrontabile { border-left: 2px solid #ffd040; }
+.detail-tr--sconsigliato { border-left: 2px solid #ff4444; }
+
+/* ── Player detail modal width ───────────────────────────────────────────── */
+.detail-modal--player { max-width: 480px; }
+
+.detail-td--boss {
+  font-weight: 600;
+  color: #c8d8e8;
+}
+.detail-td--mini {
+  color: #7090a8;
+  font-size: 0.88rem;
+  padding-left: 1.5rem;
+}

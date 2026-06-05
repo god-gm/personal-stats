@@ -23,6 +23,6 @@
  * average → grigio neutro
  * below   → arancio ambra (distinguibile da ciano)
  */
-.perf-above   { color: #4fc3f7; }
+.perf-above   { color: #4caf50; }
 .perf-average { color: #9e9e9e; }
 .perf-below   { color: #ffb347; }

@@ -94,10 +94,16 @@
 
 .enc-primary__tag {
   font-family: 'Orbitron', sans-serif;
-  font-size: 0.55rem;
-  color: #cc5500;
+  font-size: 0.6rem;
+  font-weight: 700;
+  color: #ff6622;
   letter-spacing: 0.2em;
   text-transform: uppercase;
+  background: rgba(200, 80, 20, 0.15);
+  border: 1px solid rgba(200, 80, 20, 0.45);
+  padding: 0.15rem 0.5rem;
+  display: inline-block;
+  clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
 }
 
 .enc-primary__name {
@@ -133,8 +139,8 @@
 }
 .enc-secondaries__label {
   font-family: 'Orbitron', sans-serif;
-  font-size: 0.55rem;
-  color: #2a5068;
+  font-size: 0.58rem;
+  color: rgba(0, 200, 255, 0.45);
   letter-spacing: 0.2em;
   text-transform: uppercase;
   white-space: nowrap;
@@ -163,6 +169,17 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: 0.55rem;
+}
+
+.enc-mini__title { display: flex; flex-direction: column; gap: 0.15rem; }
+
+.enc-mini__type-badge {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.5rem;
+  font-weight: 700;
+  color: rgba(0, 200, 255, 0.6);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
 }
 
 .enc-mini__name {

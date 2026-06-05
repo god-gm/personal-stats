@@ -67,7 +67,10 @@ export default function BossGroupCard({ group }) {
                 {sides.map((enc) => (
                   <div key={enc.unitId} className="enc-mini">
                     <div className="enc-mini__top">
-                      <span className="enc-mini__name">{enc.name}</span>
+                      <div className="enc-mini__title">
+                        <span className="enc-mini__type-badge">SIDE</span>
+                        <span className="enc-mini__name">{enc.name}</span>
+                      </div>
                       <PerformanceIndicator value={enc.performanceIndicator} />
                     </div>
                     <div className="enc-mini__stats">

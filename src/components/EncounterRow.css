@@ -1,0 +1,25 @@
+.encounter-row td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.95rem;
+  color: #d0d8e8;
+}
+.enc-name { font-weight: 600; color: #e8eaf0; }
+.enc-side-badge {
+  display: inline-block;
+  margin-left: 0.4rem;
+  padding: 0.1rem 0.4rem;
+  background: rgba(0,200,255,0.15);
+  border: 1px solid #00c8ff66;
+  border-radius: 3px;
+  font-size: 0.7rem;
+  color: #00c8ff;
+  vertical-align: middle;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.enc-attacks, .enc-avg, .enc-guild, .enc-perf {
+  text-align: right;
+  white-space: nowrap;
+}

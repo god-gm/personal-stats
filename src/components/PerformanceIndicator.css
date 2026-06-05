@@ -1,0 +1,8 @@
+.perf-indicator {
+  font-size: 0.85rem;
+  font-weight: bold;
+  margin-left: 0.4rem;
+}
+.perf-above   { color: #00ff88; }
+.perf-average { color: #f0c040; }
+.perf-below   { color: #ff4444; }

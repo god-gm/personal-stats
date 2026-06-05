@@ -1,0 +1,80 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap');
+
+.dash-wrapper {
+  min-height: 100vh;
+  background: radial-gradient(ellipse at top, #0a0e1a 0%, #050810 100%);
+  color: #d0d8e8;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+/* Header */
+.dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1.5rem;
+  background: rgba(10,14,26,0.95);
+  border-bottom: 1px solid rgba(0,200,255,0.2);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.dash-header__logo { display: flex; align-items: center; gap: 0.5rem; }
+.dash-header__icon { color: #00c8ff; font-size: 1.2rem; text-shadow: 0 0 10px #00c8ff88; }
+.dash-header__name {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.85rem;
+  color: #a0d8ef;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.dash-header__right { display: flex; align-items: center; gap: 1rem; }
+.dash-header__player {
+  font-family: 'Rajdhani', sans-serif;
+  color: #607088;
+  font-size: 0.9rem;
+}
+.dash-logout-btn {
+  background: transparent;
+  border: 1px solid rgba(0,200,255,0.3);
+  border-radius: 4px;
+  color: #607088;
+  cursor: pointer;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  padding: 0.35rem 0.75rem;
+  transition: color 0.2s, border-color 0.2s;
+}
+.dash-logout-btn:hover { color: #00c8ff; border-color: rgba(0,200,255,0.6); }
+
+/* Main content */
+.dash-main { max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+/* Season bar */
+.dash-season-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(0,200,255,0.05);
+  border: 1px solid rgba(0,200,255,0.15);
+  border-radius: 6px;
+  padding: 0.6rem 1rem;
+  margin-bottom: 1.25rem;
+  font-size: 0.9rem;
+  flex-wrap: wrap;
+}
+.dash-season-label, .dash-tokens-label, .dash-bombs-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  color: #607088;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+}
+.dash-season-value { color: #00c8ff; font-weight: 600; margin-right: 1rem; }
+.dash-tokens-value { color: #a0d8ef; font-weight: 600; margin-right: 1rem; }
+.dash-bombs-value  { color: #a0d8ef; font-weight: 600; }
+
+/* Status / Error */
+.dash-status { color: #607088; font-size: 0.9rem; text-align: center; margin-top: 3rem; }
+.dash-error  { color: #ff4444; font-size: 0.9rem; text-align: center; margin-top: 3rem; }

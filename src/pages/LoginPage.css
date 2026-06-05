@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap');
+
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at center, #0a0e1a 0%, #050810 100%);
+}
+.login-card {
+  background: rgba(10,14,26,0.92);
+  border: 1px solid rgba(0,200,255,0.3);
+  border-radius: 8px;
+  padding: 2.5rem 2rem;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  box-shadow: 0 0 40px rgba(0,200,255,0.12), 0 0 80px rgba(0,100,200,0.06);
+}
+.login-logo {
+  font-size: 2.5rem;
+  color: #00c8ff;
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 16px #00c8ff88;
+}
+.login-title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 1.4rem;
+  color: #e8eaf0;
+  letter-spacing: 0.1em;
+  margin: 0 0 0.25rem;
+}
+.login-subtitle {
+  font-family: 'Rajdhani', sans-serif;
+  color: #607088;
+  font-size: 0.9rem;
+  margin: 0 0 2rem;
+  letter-spacing: 0.05em;
+}
+.login-form { display: flex; flex-direction: column; gap: 0.75rem; text-align: left; }
+.login-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  color: #607088;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+.login-input {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(0,200,255,0.25);
+  border-radius: 4px;
+  color: #e8eaf0;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 1rem;
+  padding: 0.65rem 0.85rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.login-input:focus {
+  border-color: rgba(0,200,255,0.7);
+  box-shadow: 0 0 8px rgba(0,200,255,0.2);
+}
+.login-input:disabled { opacity: 0.5; }
+.login-error {
+  color: #ff4444;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.85rem;
+  margin: 0;
+}
+.login-btn {
+  background: linear-gradient(135deg, #0a3a5a, #0060a0);
+  border: 1px solid #00c8ff66;
+  border-radius: 4px;
+  color: #00c8ff;
+  cursor: pointer;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.login-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #0d4a72, #0080c8);
+  box-shadow: 0 0 14px rgba(0,200,255,0.3);
+}
+.login-btn:disabled { opacity: 0.5; cursor: default; }

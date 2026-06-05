@@ -19,8 +19,8 @@ export default function BossGroupCard({ group }) {
   const [expanded, setExpanded] = useState(true);
   const { label, bossName, encounters } = group;
 
-  const boss = encounters.find((e) => e.encounterType === 'Main');
-  const sides = encounters.filter((e) => e.encounterType !== 'Main');
+  const boss = encounters.find((e) => e.encounterType === 'Boss');
+  const sides = encounters.filter((e) => e.encounterType !== 'Boss');
 
   return (
     <div className="bgc">

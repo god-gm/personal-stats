@@ -40,7 +40,7 @@ export default function BossGroupCard({ group }) {
               <div className="enc-primary__header">
                 <span className="enc-primary__skull">☠</span>
                 <div className="enc-primary__title">
-                  <span className="enc-primary__tag">OBIETTIVO PRIMARIO</span>
+                  <span className="enc-primary__tag">BOSS</span>
                   <span className="enc-primary__name">{boss.name}</span>
                 </div>
                 <div className="enc-primary__perf">
@@ -60,7 +60,7 @@ export default function BossGroupCard({ group }) {
             <div className="enc-secondaries">
               <div className="enc-secondaries__divider">
                 <span className="enc-secondaries__line" />
-                <span className="enc-secondaries__label">OBIETTIVI SECONDARI</span>
+                <span className="enc-secondaries__label">SIDES</span>
                 <span className="enc-secondaries__line" />
               </div>
               <div className="enc-secondaries__grid">

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   getLevels,
@@ -49,9 +49,9 @@ export default function AssignmentsPage() {
   const [assignments, setAssignments] = useState({});
 
   // Detail popup (boss/mini view)
-  const [detailTarget, setDetailTarget] = useState(null); // { key, label }
+  const [detailTarget, setDetailTarget] = useState(null);
   // Player detail popup (player-centric view)
-  const [playerDetailTarget, setPlayerDetailTarget] = useState(null); // { userId, playerName }
+  const [playerDetailTarget, setPlayerDetailTarget] = useState(null);
 
   // Save / Load
   const [savedList, setSavedList] = useState([]);
@@ -61,6 +61,16 @@ export default function AssignmentsPage() {
   const [loadName, setLoadName] = useState('');
   const [loadSeason, setLoadSeason] = useState('');
   const [loadError, setLoadError] = useState('');
+
+  // Toast notification
+  const [toast, setToast] = useState(null); // { message, type: 'success'|'error' }
+  const toastTimer = useRef(null);
+
+  // In-page overwrite confirm dialog
+  const [confirmDialog, setConfirmDialog] = useState(null); // { message, onConfirm }
+
+  // Ref to skip the assignments-init effect when loading from saved data
+  const skipAssignmentInitRef = useRef(false);
 
   // ── Load anag on mount ──────────────────────────────────────────────────
   useEffect(() => {
@@ -73,9 +83,30 @@ export default function AssignmentsPage() {
     refreshSavedList();
   }, []);
 
-  // When stats arrive, initialise assignments from the computed initial state
+  // Toast auto-dismiss
+  useEffect(() => {
+    if (!toast) return;
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 3200);
+    return () => clearTimeout(toastTimer.current);
+  }, [toast]);
+
+  function showToast(message, type = 'success') {
+    setToast({ message, type });
+  }
+
+  function showConfirm(message, onConfirm) {
+    setConfirmDialog({ message, onConfirm });
+  }
+
+  // When stats arrive from a fresh compute, initialise assignments from the server suggestion.
+  // Skip when loading from saved data (skipAssignmentInitRef guards this).
   useEffect(() => {
     if (!stats) return;
+    if (skipAssignmentInitRef.current) {
+      skipAssignmentInitRef.current = false;
+      return;
+    }
     const init = {};
     for (const pa of stats.playerAssignments) {
       init[pa.userId] = { ...pa.assignments };
@@ -154,6 +185,25 @@ export default function AssignmentsPage() {
   }
 
   // ── Save ─────────────────────────────────────────────────────────────────
+  async function doSave() {
+    setSaving(true);
+    try {
+      const data = JSON.stringify({
+        config,
+        assignments,           // full per-player per-target state
+        stats: stats || null,  // full stats object for immediate restore on load
+        saveSeason,
+      });
+      await saveAssignment(saveName.trim(), saveSeason, data);
+      showToast('Salvataggio effettuato con successo', 'success');
+      await refreshSavedList();
+    } catch (e) {
+      showToast('Errore nel salvataggio: ' + (e.message || 'sconosciuto'), 'error');
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function handleSave() {
     if (!saveName.trim()) return;
     setSaving(true);
@@ -161,30 +211,15 @@ export default function AssignmentsPage() {
       const checkRes = await checkAssignmentExists(saveName.trim(), saveSeason);
       const exists   = checkRes.status === 'OK' && checkRes.data === true;
       if (exists) {
-        const confirmed = window.confirm(
-          `Esiste già un salvataggio con nome "${saveName}" per la season ${saveSeason}.\n` +
-          `Vuoi sovrascriverlo?`
+        setSaving(false);
+        showConfirm(
+          `Esiste già un salvataggio "${saveName}" per la season ${saveSeason}. Vuoi sovrascriverlo?`,
+          () => doSave()
         );
-        if (!confirmed) { setSaving(false); return; }
+        return;
       }
-      const data = JSON.stringify({
-        config,
-        assignments,
-        statsSnapshot: stats ? {
-          bosses: stats.bosses.map(b => ({
-            levelId: b.levelId, levelDesc: b.levelDesc,
-            bossId: b.bossId,   bossDesc: b.bossDesc, apiType: b.apiType,
-          })),
-        } : null,
-      });
-      await saveAssignment(saveName.trim(), saveSeason, data);
-      alert('Salvataggio effettuato!');
-      await refreshSavedList();
-    } catch (e) {
-      alert('Errore nel salvataggio: ' + (e.message || 'sconosciuto'));
-    } finally {
-      setSaving(false);
-    }
+    } catch (_) { /* network error — proceed anyway */ }
+    await doSave();
   }
 
   // ── Load ─────────────────────────────────────────────────────────────────
@@ -197,8 +232,16 @@ export default function AssignmentsPage() {
       const parsed = JSON.parse(res.data);
       if (parsed.config)      setConfig(parsed.config);
       if (parsed.assignments) setAssignments(parsed.assignments);
-      setSaveSeason(Number(loadSeason));
-      setStats(null); // stats must be re-computed after loading
+      if (parsed.saveSeason)  setSaveSeason(parsed.saveSeason);
+      else                    setSaveSeason(Number(loadSeason));
+      if (parsed.stats) {
+        // Restore saved stats without triggering the assignments-init effect
+        skipAssignmentInitRef.current = true;
+        setStats(parsed.stats);
+      } else {
+        setStats(null);
+      }
+      showToast('Caricamento completato', 'success');
     } catch (e) {
       setLoadError('Errore nel caricamento: ' + (e.message || 'sconosciuto'));
     }
@@ -506,6 +549,40 @@ export default function AssignmentsPage() {
           onClose={closePlayerDetail}
         />
       )}
+
+      {/* ── Toast notification ─────────────────────────────────────────────── */}
+      {toast && (
+        <div className={`assign-toast assign-toast--${toast.type}`} onClick={() => setToast(null)}>
+          <span className="assign-toast__icon">{toast.type === 'success' ? '✓' : '✕'}</span>
+          <span className="assign-toast__msg">{toast.message}</span>
+        </div>
+      )}
+
+      {/* ── Confirm dialog ─────────────────────────────────────────────────── */}
+      {confirmDialog && (
+        <div className="assign-confirm-overlay" onClick={() => setConfirmDialog(null)}>
+          <div className="assign-confirm-modal" onClick={e => e.stopPropagation()}>
+            <p className="assign-confirm__msg">{confirmDialog.message}</p>
+            <div className="assign-confirm__actions">
+              <button
+                className="assign-confirm__btn assign-confirm__btn--cancel"
+                onClick={() => setConfirmDialog(null)}
+              >
+                ANNULLA
+              </button>
+              <button
+                className="assign-confirm__btn assign-confirm__btn--ok"
+                onClick={() => {
+                  setConfirmDialog(null);
+                  confirmDialog.onConfirm();
+                }}
+              >
+                CONFERMA
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -528,7 +605,8 @@ function DetailPopup({ targetKey, label, stats, assignments, setPlayerAssignment
 
   const bossData = stats.bosses.find(b => b.apiType === bossType);
   const miniData = isMini && bossData ? bossData.minis.find(m => m.unitId === miniUnitId) : null;
-  const playerStats = (miniData ? miniData.playerStats : bossData?.playerStats) || [];
+  const rawPlayerStats = (miniData ? miniData.playerStats : bossData?.playerStats) || [];
+  const playerStats = [...rawPlayerStats].sort((a, b) => a.playerName.localeCompare(b.playerName));
   const guildAvg = miniData ? miniData.guildAverage : (bossData ? bossData.guildAverage : 0);
 
   return (

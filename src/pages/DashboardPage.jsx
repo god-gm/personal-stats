@@ -38,7 +38,7 @@ export default function DashboardPage() {
     <div className="dash-wrapper">
       <header className="dash-header">
         <div className="dash-header__logo">
-          <span className="dash-header__icon">⚔</span>
+          <span className="dash-header__icon">☠</span>
           <span className="dash-header__name">Gods of Death</span>
         </div>
         <div className="dash-header__right">

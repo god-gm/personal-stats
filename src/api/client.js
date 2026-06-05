@@ -25,6 +25,13 @@ export async function login(discordName) {
   });
 }
 
+export async function discordCallback(code) {
+  return request('/api/auth/discord/callback', {
+    method: 'POST',
+    body: JSON.stringify({ code }),
+  });
+}
+
 export async function getCurrentSeason() {
   return request('/api/raid/current-season');
 }

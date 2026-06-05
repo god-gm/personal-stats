@@ -219,3 +219,91 @@
   font-size: 0.9rem;
   color: #7090a8;
 }
+
+/* ── Mobile layout (≤ 640px) ── */
+@media (max-width: 640px) {
+  /* Header: altezza auto, padding ridotto */
+  .dash-header {
+    height: auto;
+    min-height: 52px;
+    padding: 0.45rem 0.85rem;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  /* Nascondi il nome app, lascia solo il simbolo */
+  .dash-header__name {
+    display: none;
+  }
+
+  .dash-header__icon {
+    font-size: 1.4rem;
+  }
+
+  .dash-header__right {
+    gap: 0.6rem;
+  }
+
+  /* Player name: più piccolo per non rubare spazio */
+  .dash-header__player {
+    font-size: 0.55rem;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Bottoni: tap target più grande */
+  .dash-logout-btn,
+  .dash-assignments-btn {
+    padding: 0.45rem 0.85rem;
+    font-size: 0.55rem;
+  }
+
+  /* Main: padding laterale ridotto */
+  .dash-main {
+    padding: 0.85rem 0.65rem;
+  }
+
+  /* Season bar: testo più compatto */
+  .dash-season-bar {
+    gap: 0.3rem 0.75rem;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  .dash-season-label,
+  .dash-tokens-label,
+  .dash-bombs-label {
+    font-size: 0.52rem;
+  }
+
+  .dash-season-value {
+    font-size: 0.7rem;
+  }
+
+  .dash-tokens-value,
+  .dash-bombs-value {
+    font-size: 0.82rem;
+  }
+
+  /* Legenda: colonna su mobile */
+  .dash-legend {
+    padding: 0.85rem;
+    margin-top: 1.25rem;
+  }
+
+  .dash-legend__items {
+    flex-direction: column;
+    gap: 0.65rem;
+    align-items: flex-start;
+  }
+
+  .dash-legend__badge {
+    font-size: 0.72rem;
+  }
+
+  .dash-legend__desc {
+    font-size: 0.82rem;
+  }
+}

@@ -1,8 +1,28 @@
 .perf-indicator {
-  font-size: 0.85rem;
-  font-weight: bold;
-  margin-left: 0.4rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.28rem;
+  font-family: 'Orbitron', sans-serif;
 }
-.perf-above   { color: #00ff88; }
-.perf-average { color: #f0c040; }
-.perf-below   { color: #ff4444; }
+
+.perf-indicator__symbol {
+  font-size: 0.72rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.perf-indicator__label {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+/*
+ * Colorblind-safe: evita distinzione solo rosso/verde.
+ * above   → ciano (distinguibile da rosso e arancio)
+ * average → grigio neutro
+ * below   → arancio ambra (distinguibile da ciano)
+ */
+.perf-above   { color: #4fc3f7; }
+.perf-average { color: #9e9e9e; }
+.perf-below   { color: #ffb347; }

@@ -5,9 +5,9 @@ import './BossGroupCard.css';
 const fmt = (n) => (n != null ? n.toLocaleString('it-IT') : '—');
 
 const ASSIGNMENT_LABELS = {
-  consigliato:  '✓ CONS',
-  affrontabile: '~ AFF',
-  sconsigliato: '✗ SCON',
+  consigliato:  'Consigliato',
+  affrontabile: 'Affrontabile',
+  sconsigliato: 'Sconsigliato',
 };
 
 function AssignmentBadge({ type }) {
@@ -34,7 +34,7 @@ export default function BossGroupCard({ group }) {
   const [expanded, setExpanded] = useState(true);
   const { label, bossName, encounters } = group;
 
-  const boss = encounters.find((e) => e.encounterType === 'Boss');
+  const boss  = encounters.find((e) => e.encounterType === 'Boss');
   const sides = encounters.filter((e) => e.encounterType !== 'Boss');
 
   return (
@@ -49,59 +49,46 @@ export default function BossGroupCard({ group }) {
 
       {expanded && (
         <div className="bgc__body">
-          {/* PRIMARY TARGET */}
           {boss && (
-            <div className="enc-primary">
-              <div className="enc-primary__header">
-                <span className="enc-primary__skull">☠</span>
-                <div className="enc-primary__title">
-                  <span className="enc-primary__tag">BOSS</span>
-                  <span className="enc-primary__name">{boss.name}</span>
-                </div>
-                <div className="enc-primary__perf">
-                  <AssignmentBadge type={boss.assignmentType} />
-                  <PerformanceIndicator value={boss.performanceIndicator} />
+            <div className="enc-card enc-card--boss">
+              <div className="enc-card__header">
+                <span className="enc-card__skull">☠</span>
+                <div className="enc-card__title-group">
+                  <span className="enc-card__tag enc-card__tag--boss">BOSS</span>
+                  <span className="enc-card__name">{boss.name}</span>
                 </div>
               </div>
-              <div className="enc-primary__stats">
+              <div className="enc-card__meta">
+                <AssignmentBadge type={boss.assignmentType} />
+                <PerformanceIndicator value={boss.performanceIndicator} />
+              </div>
+              <div className="enc-card__stats">
                 <StatBlock label="ATTACCHI" value={boss.playerAttackCount} />
-                <StatBlock label="MEDIA PERSONALE" value={fmt(boss.playerAverage)} accent />
+                <StatBlock label="MIA MEDIA" value={fmt(boss.playerAverage)} accent />
                 <StatBlock label="MEDIA GILDA" value={fmt(boss.guildAverage)} />
               </div>
             </div>
           )}
 
-          {/* SECONDARY TARGETS */}
-          {sides.length > 0 && (
-            <div className="enc-secondaries">
-              <div className="enc-secondaries__divider">
-                <span className="enc-secondaries__line" />
-                <span className="enc-secondaries__label">SIDES</span>
-                <span className="enc-secondaries__line" />
+          {sides.map((enc) => (
+            <div key={enc.unitId} className="enc-card enc-card--side">
+              <div className="enc-card__header">
+                <div className="enc-card__title-group">
+                  <span className="enc-card__tag enc-card__tag--side">SIDE</span>
+                  <span className="enc-card__name">{enc.name}</span>
+                </div>
               </div>
-              <div className="enc-secondaries__grid">
-                {sides.map((enc) => (
-                  <div key={enc.unitId} className="enc-mini">
-                    <div className="enc-mini__top">
-                      <div className="enc-mini__title">
-                        <span className="enc-mini__type-badge">SIDE</span>
-                        <span className="enc-mini__name">{enc.name}</span>
-                      </div>
-                      <div className="enc-mini__right">
-                        <AssignmentBadge type={enc.assignmentType} />
-                        <PerformanceIndicator value={enc.performanceIndicator} />
-                      </div>
-                    </div>
-                    <div className="enc-mini__stats">
-                      <StatBlock label="ATK" value={enc.playerAttackCount} />
-                      <StatBlock label="PERS." value={fmt(enc.playerAverage)} accent />
-                      <StatBlock label="GILDA" value={fmt(enc.guildAverage)} />
-                    </div>
-                  </div>
-                ))}
+              <div className="enc-card__meta">
+                <AssignmentBadge type={enc.assignmentType} />
+                <PerformanceIndicator value={enc.performanceIndicator} />
+              </div>
+              <div className="enc-card__stats">
+                <StatBlock label="ATTACCHI" value={enc.playerAttackCount} />
+                <StatBlock label="MIA MEDIA" value={fmt(enc.playerAverage)} accent />
+                <StatBlock label="MEDIA GILDA" value={fmt(enc.guildAverage)} />
               </div>
             </div>
-          )}
+          ))}
         </div>
       )}
     </div>

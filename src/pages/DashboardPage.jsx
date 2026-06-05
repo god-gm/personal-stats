@@ -78,6 +78,26 @@ export default function DashboardPage() {
                 ))
               : <p className="dash-status">Nessun dato disponibile per questa stagione.</p>
             }
+
+            {data.bossGroups && data.bossGroups.length > 0 && (
+              <div className="dash-legend">
+                <span className="dash-legend__title">LEGENDA ASSEGNAZIONI</span>
+                <div className="dash-legend__items">
+                  <div className="dash-legend__item">
+                    <span className="dash-legend__badge dash-legend__badge--consigliato">Consigliato</span>
+                    <span className="dash-legend__desc">2/3 Token</span>
+                  </div>
+                  <div className="dash-legend__item">
+                    <span className="dash-legend__badge dash-legend__badge--affrontabile">Affrontabile</span>
+                    <span className="dash-legend__desc">1 Token</span>
+                  </div>
+                  <div className="dash-legend__item">
+                    <span className="dash-legend__badge dash-legend__badge--sconsigliato">Sconsigliato</span>
+                    <span className="dash-legend__desc">0 Token (solo per non andare full)</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </>
         )}
       </main>

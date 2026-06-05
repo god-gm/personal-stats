@@ -116,7 +116,7 @@
   text-shadow: 0 0 10px rgba(240, 160, 80, 0.25);
 }
 
-.enc-primary__perf { font-size: 1.2rem; }
+.enc-primary__perf { display: flex; align-items: center; gap: 0.5rem; }
 
 .enc-primary__stats {
   display: flex;
@@ -190,7 +190,24 @@
   letter-spacing: 0.04em;
 }
 
+.enc-mini__right { display: flex; align-items: center; gap: 0.4rem; }
+
 .enc-mini__stats { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+/* ── Assignment badge ── */
+.enc-assign-badge {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.52rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding: 0.18rem 0.42rem;
+  border: 1px solid;
+  clip-path: polygon(0 0, calc(100% - 4px) 0, 100% 4px, 100% 100%, 4px 100%, 0 calc(100% - 4px));
+  white-space: nowrap;
+}
+.enc-assign-badge--consigliato  { color: #4caf50; border-color: rgba(76,175,80,0.45); background: rgba(76,175,80,0.1); }
+.enc-assign-badge--affrontabile { color: #ff9800; border-color: rgba(255,152,0,0.45); background: rgba(255,152,0,0.1); }
+.enc-assign-badge--sconsigliato { color: #f44336; border-color: rgba(244,67,54,0.45); background: rgba(244,67,54,0.1); }
 
 /* ── Shared stat block ── */
 .stat-block { display: flex; flex-direction: column; gap: 0.1rem; }

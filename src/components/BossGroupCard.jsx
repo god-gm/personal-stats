@@ -4,6 +4,21 @@ import './BossGroupCard.css';
 
 const fmt = (n) => (n != null ? n.toLocaleString('it-IT') : '—');
 
+const ASSIGNMENT_LABELS = {
+  consigliato:  '✓ CONS',
+  affrontabile: '~ AFF',
+  sconsigliato: '✗ SCON',
+};
+
+function AssignmentBadge({ type }) {
+  if (!type || !ASSIGNMENT_LABELS[type]) return null;
+  return (
+    <span className={`enc-assign-badge enc-assign-badge--${type}`}>
+      {ASSIGNMENT_LABELS[type]}
+    </span>
+  );
+}
+
 function StatBlock({ label, value, accent }) {
   return (
     <div className="stat-block">
@@ -44,6 +59,7 @@ export default function BossGroupCard({ group }) {
                   <span className="enc-primary__name">{boss.name}</span>
                 </div>
                 <div className="enc-primary__perf">
+                  <AssignmentBadge type={boss.assignmentType} />
                   <PerformanceIndicator value={boss.performanceIndicator} />
                 </div>
               </div>
@@ -71,7 +87,10 @@ export default function BossGroupCard({ group }) {
                         <span className="enc-mini__type-badge">SIDE</span>
                         <span className="enc-mini__name">{enc.name}</span>
                       </div>
-                      <PerformanceIndicator value={enc.performanceIndicator} />
+                      <div className="enc-mini__right">
+                        <AssignmentBadge type={enc.assignmentType} />
+                        <PerformanceIndicator value={enc.performanceIndicator} />
+                      </div>
                     </div>
                     <div className="enc-mini__stats">
                       <StatBlock label="ATK" value={enc.playerAttackCount} />

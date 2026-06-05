@@ -92,7 +92,8 @@
   text-transform: uppercase;
 }
 
-.dash-logout-btn {
+.dash-logout-btn,
+.dash-assignments-btn {
   background: transparent;
   border: 1px solid rgba(0, 200, 255, 0.22);
   color: #2a5068;
@@ -104,7 +105,14 @@
   clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
   transition: color 0.2s, border-color 0.2s;
 }
-.dash-logout-btn:hover { color: #00c8ff; border-color: rgba(0, 200, 255, 0.5); }
+.dash-logout-btn:hover,
+.dash-assignments-btn:hover { color: #00c8ff; border-color: rgba(0, 200, 255, 0.5); }
+
+.dash-assignments-btn {
+  color: #ffa040;
+  border-color: rgba(255, 160, 64, 0.35);
+}
+.dash-assignments-btn:hover { color: #ffcc88; border-color: rgba(255, 160, 64, 0.7); }
 
 /* Main */
 .dash-main {

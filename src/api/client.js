@@ -35,3 +35,41 @@ export async function discordCallback(code) {
 export async function getCurrentSeason() {
   return request('/api/raid/current-season');
 }
+
+// ── Anag ────────────────────────────────────────────────────────────────────
+
+export async function getLevels() {
+  return request('/api/anag/levels');
+}
+
+export async function getBosses() {
+  return request('/api/anag/bosses');
+}
+
+// ── Assignments ─────────────────────────────────────────────────────────────
+
+export async function computeAssignmentStats(levels) {
+  return request('/api/assignments/stats', {
+    method: 'POST',
+    body: JSON.stringify({ levels }),
+  });
+}
+
+export async function listSavedAssignments() {
+  return request('/api/assignments/list');
+}
+
+export async function saveAssignment(name, seasonNumber, assignmentData) {
+  return request('/api/assignments/save', {
+    method: 'POST',
+    body: JSON.stringify({ name, seasonNumber, assignmentData }),
+  });
+}
+
+export async function loadAssignment(name, seasonNumber) {
+  return request(`/api/assignments/load?name=${encodeURIComponent(name)}&seasonNumber=${seasonNumber}`);
+}
+
+export async function checkAssignmentExists(name, seasonNumber) {
+  return request(`/api/assignments/exists?name=${encodeURIComponent(name)}&seasonNumber=${seasonNumber}`);
+}

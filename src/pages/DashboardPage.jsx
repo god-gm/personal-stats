@@ -10,6 +10,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const playerName = localStorage.getItem('user_game_name') || '';
+  const isAdmin    = localStorage.getItem('user_role') === 'ADMIN';
 
   useEffect(() => {
     if (!localStorage.getItem('jwt_token')) {
@@ -31,6 +32,7 @@ export default function DashboardPage() {
   function handleLogout() {
     localStorage.removeItem('jwt_token');
     localStorage.removeItem('user_game_name');
+    localStorage.removeItem('user_role');
     navigate('/');
   }
 
@@ -43,6 +45,14 @@ export default function DashboardPage() {
         </div>
         <div className="dash-header__right">
           {playerName && <span className="dash-header__player">{playerName}</span>}
+          {isAdmin && (
+            <button
+              className="dash-assignments-btn"
+              onClick={() => navigate('/assignments')}
+            >
+              ASSIGNMENTS
+            </button>
+          )}
           <button className="dash-logout-btn" onClick={handleLogout}>LOGOUT</button>
         </div>
       </header>

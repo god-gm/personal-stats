@@ -1,0 +1,384 @@
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;600&display=swap');
+
+/* ── Wrapper ────────────────────────────────────────────────────────────── */
+.assign-wrapper {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 100% 50% at 50% 0%, rgba(0, 60, 120, 0.18) 0%, transparent 60%),
+    #04070f;
+  color: #d0d8e8;
+  font-family: 'Rajdhani', sans-serif;
+  position: relative;
+}
+
+.assign-wrapper::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0, 0, 0, 0.12) 2px, rgba(0, 0, 0, 0.12) 4px
+  );
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── Reuse header styles from DashboardPage ─────────────────────────────── */
+.dash-header { /* already defined in DashboardPage.css, imported globally */
+  position: sticky; top: 0; z-index: 100;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0 1.5rem; height: 52px;
+  background: rgba(4, 7, 18, 0.97);
+  border-bottom: 1px solid rgba(0, 200, 255, 0.15);
+}
+.dash-header__right { display: flex; align-items: center; gap: 1.25rem; }
+.dash-header__logo  { display: flex; align-items: center; gap: 0.6rem; }
+.dash-header__icon  { color: #cc2200; font-size: 1.2rem; text-shadow: 0 0 10px rgba(200,50,0,0.6); }
+.dash-header__name  { font-family: 'Orbitron', sans-serif; font-size: 0.78rem; font-weight: 900; color: #c8d8e8; letter-spacing: 0.18em; text-transform: uppercase; }
+.dash-header__player { font-family: 'Orbitron', sans-serif; font-size: 0.62rem; color: #00c8ff; letter-spacing: 0.12em; text-transform: uppercase; }
+
+/* ── Main ───────────────────────────────────────────────────────────────── */
+.assign-main {
+  position: relative;
+  z-index: 1;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 1.5rem 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* ── Section ────────────────────────────────────────────────────────────── */
+.assign-section {
+  background: rgba(0, 200, 255, 0.03);
+  border: 1px solid rgba(0, 200, 255, 0.1);
+  padding: 1.25rem 1.5rem;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+}
+
+.assign-section__title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #00c8ff;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  margin: 0 0 1rem;
+}
+.assign-section__title--mt { margin-top: 2rem; }
+
+/* ── Config grid ────────────────────────────────────────────────────────── */
+.assign-config-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.assign-config-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.assign-config-row__label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  color: #ffa040;
+  letter-spacing: 0.1em;
+  min-width: 32px;
+  text-align: right;
+}
+
+/* ── Select / Input ─────────────────────────────────────────────────────── */
+.assign-select,
+.assign-input {
+  background: rgba(0, 200, 255, 0.04);
+  border: 1px solid rgba(0, 200, 255, 0.18);
+  color: #c8d8e8;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.9rem;
+  padding: 0.3rem 0.55rem;
+  outline: none;
+  transition: border-color 0.2s;
+  flex: 1;
+}
+.assign-select:focus,
+.assign-input:focus { border-color: rgba(0, 200, 255, 0.5); }
+.assign-select--sm { flex: 0 0 80px; }
+
+.assign-select option {
+  background: #0a1020;
+  color: #c8d8e8;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────── */
+.assign-calc-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0.5rem 1.5rem;
+  background: transparent;
+  border: 1px solid rgba(255, 160, 64, 0.4);
+  color: #ffa040;
+  cursor: pointer;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.assign-calc-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+.assign-calc-btn:not(:disabled):hover {
+  background: rgba(255, 160, 64, 0.1);
+  border-color: rgba(255, 160, 64, 0.7);
+  color: #ffcc88;
+}
+
+.assign-action-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.12em;
+  padding: 0.3rem 0.8rem;
+  background: transparent;
+  border: 1px solid rgba(0, 200, 255, 0.22);
+  color: #2a5068;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.assign-action-btn:not(:disabled):hover { color: #00c8ff; border-color: rgba(0, 200, 255, 0.5); }
+.assign-action-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+/* ── Save/Load ──────────────────────────────────────────────────────────── */
+.assign-section--saveload { padding: 1rem 1.5rem; }
+
+.assign-saveload {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+}
+
+.assign-saveload__block { flex: 1; min-width: 260px; }
+
+.assign-saveload__title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.6rem;
+  color: #2a5068;
+  letter-spacing: 0.14em;
+  margin: 0 0 0.5rem;
+}
+
+.assign-saveload__row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+/* ── Error ──────────────────────────────────────────────────────────────── */
+.assign-error {
+  color: #ff4444;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.9rem;
+  margin-top: 0.5rem;
+}
+
+/* ── Table ──────────────────────────────────────────────────────────────── */
+.assign-table-wrap {
+  overflow-x: auto;
+}
+
+.assign-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.95rem;
+}
+
+.assign-th {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.58rem;
+  color: #2a5068;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  text-align: left;
+  padding: 0.45rem 0.75rem;
+  border-bottom: 1px solid rgba(0, 200, 255, 0.1);
+  white-space: nowrap;
+}
+.assign-th--count { text-align: center; width: 70px; }
+.assign-th--guild { width: 120px; }
+
+.assign-tr--boss { background: rgba(0, 200, 255, 0.04); }
+.assign-tr--mini { background: rgba(0, 0, 0, 0); }
+.assign-tr:hover { background: rgba(0, 200, 255, 0.06); }
+
+.assign-td {
+  padding: 0.4rem 0.75rem;
+  border-bottom: 1px solid rgba(0, 200, 255, 0.05);
+  vertical-align: middle;
+}
+
+.assign-td--target {
+  font-weight: 600;
+  color: #c8d8e8;
+}
+.assign-td--mini {
+  color: #7090a8;
+  font-size: 0.88rem;
+  padding-left: 1.5rem;
+}
+
+.assign-td--guild {
+  color: #7090a8;
+  font-size: 0.88rem;
+}
+
+.assign-td--count { text-align: center; font-weight: 700; }
+.assign-count--cons  { color: #40c880; }
+.assign-count--aff   { color: #ffa040; }
+.assign-count--scon  { color: #2a5068; }
+
+.assign-td--player { color: #c8d8e8; font-weight: 600; }
+
+.assign-level-badge {
+  display: inline-block;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.55rem;
+  color: #ffa040;
+  border: 1px solid rgba(255, 160, 64, 0.3);
+  padding: 0.1rem 0.3rem;
+  margin-right: 0.5rem;
+  vertical-align: middle;
+}
+.assign-mini-count {
+  font-size: 0.78rem;
+  color: #2a5068;
+  margin-left: 0.4rem;
+}
+
+.assign-detail-btn {
+  background: transparent;
+  border: 1px solid rgba(0, 200, 255, 0.2);
+  color: #2a5068;
+  cursor: pointer;
+  font-size: 0.7rem;
+  padding: 0.15rem 0.4rem;
+  transition: color 0.2s, border-color 0.2s;
+}
+.assign-detail-btn:hover { color: #00c8ff; border-color: rgba(0, 200, 255, 0.5); }
+
+/* ── Detail popup ───────────────────────────────────────────────────────── */
+.detail-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 5, 15, 0.85);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.detail-modal {
+  background: #060c1a;
+  border: 1px solid rgba(0, 200, 255, 0.2);
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+  width: 100%;
+  max-width: 780px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.detail-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(0, 200, 255, 0.1);
+  background: rgba(0, 200, 255, 0.04);
+}
+
+.detail-modal__title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.72rem;
+  color: #00c8ff;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.detail-modal__close {
+  background: transparent;
+  border: none;
+  color: #2a5068;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+.detail-modal__close:hover { color: #ff4444; }
+
+.detail-modal__guild {
+  padding: 0.5rem 1rem;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.9rem;
+  color: #7090a8;
+  border-bottom: 1px solid rgba(0, 200, 255, 0.06);
+}
+.detail-modal__guild strong { color: #c8d8e8; }
+
+.detail-table-wrap {
+  overflow-y: auto;
+  flex: 1;
+}
+
+.detail-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.9rem;
+}
+
+.detail-table th {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.55rem;
+  color: #2a5068;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.4rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 200, 255, 0.1);
+  position: sticky;
+  top: 0;
+  background: #060c1a;
+}
+
+.detail-tr { transition: background 0.15s; }
+.detail-tr:hover { background: rgba(0, 200, 255, 0.04); }
+.detail-tr--consigliato  { border-left: 2px solid #40c880; }
+.detail-tr--affrontabile { border-left: 2px solid #ffa040; }
+.detail-tr--sconsigliato { border-left: 2px solid #1a3040; }
+
+.detail-td {
+  padding: 0.35rem 0.75rem;
+  border-bottom: 1px solid rgba(0, 200, 255, 0.04);
+  color: #c8d8e8;
+}
+
+.detail-delta--pos { color: #40c880; }
+.detail-delta--neg { color: #ff5555; }
+
+.detail-select {
+  background: rgba(0, 200, 255, 0.04);
+  border: 1px solid rgba(0, 200, 255, 0.18);
+  color: #c8d8e8;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.85rem;
+  padding: 0.15rem 0.35rem;
+  outline: none;
+  cursor: pointer;
+}
+.detail-select option { background: #0a1020; }

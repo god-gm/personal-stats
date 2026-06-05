@@ -32,9 +32,13 @@ export default function AuthCallbackPage() {
         if (res.status === 'OK' && res.data?.token) {
           localStorage.setItem('jwt_token', res.data.token);
           localStorage.setItem('user_game_name', res.data.userGameName);
+          localStorage.setItem('user_role', res.data.role || 'USER');
           navigate('/dashboard');
+        } else if (res.status === 'DENIED') {
+          setError('Operativo non riconosciuto nella gilda. Accesso negato.');
+          setTimeout(() => navigate('/'), 3500);
         } else {
-          setError(res.message || 'Accesso negato. Operativo non riconosciuto.');
+          setError(res.message || 'Autenticazione fallita.');
           setTimeout(() => navigate('/'), 3500);
         }
       })

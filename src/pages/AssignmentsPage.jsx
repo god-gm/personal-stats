@@ -372,7 +372,7 @@ export default function AssignmentsPage() {
               <div className="assign-saveload__row">
                 <select
                   className="assign-select"
-                  value={loadName}
+                  value={loadName && loadSeason ? `${loadName}||${loadSeason}` : ''}
                   onChange={e => {
                     const [n, s] = e.target.value.split('||');
                     setLoadName(n || '');

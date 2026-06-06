@@ -64,7 +64,8 @@ export default function BossGroupCard({ group }) {
               </div>
               <div className="enc-card__stats">
                 <StatBlock label="ATTACCHI" value={boss.playerAttackCount} />
-                <StatBlock label="MIA MEDIA" value={fmt(boss.playerAverage)} accent />
+                <StatBlock label="MEDIA PERSONALE" value={fmt(boss.playerAverage)} accent />
+                <StatBlock label="TOP RUN PERSONALE" value={fmt(boss.playerBest || null)} />
                 <StatBlock label="MEDIA GILDA" value={fmt(boss.guildAverage)} />
               </div>
             </div>
@@ -84,7 +85,8 @@ export default function BossGroupCard({ group }) {
               </div>
               <div className="enc-card__stats">
                 <StatBlock label="ATTACCHI" value={enc.playerAttackCount} />
-                <StatBlock label="MIA MEDIA" value={fmt(enc.playerAverage)} accent />
+                <StatBlock label="MEDIA PERSONALE" value={fmt(enc.playerAverage)} accent />
+                <StatBlock label="TOP RUN PERSONALE" value={fmt(enc.playerBest || null)} />
                 <StatBlock label="MEDIA GILDA" value={fmt(enc.guildAverage)} />
               </div>
             </div>

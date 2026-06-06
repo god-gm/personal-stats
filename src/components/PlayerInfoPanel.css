@@ -1,0 +1,89 @@
+.pip {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: rgba(0, 200, 255, 0.04);
+  border: 1px solid rgba(0, 200, 255, 0.14);
+  padding: 0.6rem 1rem;
+  margin-bottom: 0.75rem;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  flex-wrap: wrap;
+  gap: 0.4rem 2rem;
+}
+
+.pip__block {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+}
+
+.pip__divider {
+  width: 1px;
+  height: 1.4rem;
+  background: rgba(0, 200, 255, 0.18);
+  flex-shrink: 0;
+}
+
+.pip__icon {
+  font-size: 0.9rem;
+  line-height: 1;
+}
+
+.pip__label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.58rem;
+  color: #d0dde8;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.pip__value {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #00c8ff;
+}
+
+.pip__value--ready {
+  color: #4caf50;
+}
+
+.pip__value--used {
+  color: #ef5350;
+}
+
+.pip__sub {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #a0d8ef;
+}
+
+.pip__sub--ready {
+  color: #4caf50;
+}
+
+@media (max-width: 640px) {
+  .pip {
+    gap: 0.5rem 1.2rem;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .pip__divider {
+    display: none;
+  }
+
+  .pip__label {
+    font-size: 0.52rem;
+  }
+
+  .pip__value {
+    font-size: 0.7rem;
+  }
+
+  .pip__sub {
+    font-size: 0.78rem;
+  }
+}

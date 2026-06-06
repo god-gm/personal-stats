@@ -36,6 +36,10 @@ export async function getCurrentSeason() {
   return request('/api/raid/current-season');
 }
 
+export async function getPlayerInfo() {
+  return request('/api/player/info');
+}
+
 // ── Anag ────────────────────────────────────────────────────────────────────
 
 export async function getLevels() {

@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentSeason } from '../api/client';
+import { getCurrentSeason, getPlayerInfo } from '../api/client';
 import BossGroupCard from '../components/BossGroupCard';
+import PlayerInfoPanel from '../components/PlayerInfoPanel';
 import './DashboardPage.css';
 
 export default function DashboardPage() {
   const [data, setData] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [playerInfo, setPlayerInfo] = useState(null);
+  const [displayName, setDisplayName] = useState(localStorage.getItem('user_game_name') || '');
   const navigate = useNavigate();
-  const playerName = localStorage.getItem('user_game_name') || '';
-  const isAdmin    = localStorage.getItem('user_role') === 'ADMIN';
+  const isAdmin = localStorage.getItem('user_role') === 'ADMIN';
 
   useEffect(() => {
     if (!localStorage.getItem('jwt_token')) {
       navigate('/');
       return;
     }
-    getCurrentSeason()
+
+    const seasonPromise = getCurrentSeason()
       .then((res) => {
         if (res.status === 'OK') setData(res.data);
         else setError(res.message || 'Errore nel caricamento dati.');
@@ -25,8 +28,18 @@ export default function DashboardPage() {
       .catch((err) => {
         if (err.status === 401) navigate('/');
         else setError(err.message || 'Errore di rete.');
+      });
+
+    const playerPromise = getPlayerInfo()
+      .then((res) => {
+        if (res.status === 'OK' && res.data) {
+          setPlayerInfo(res.data);
+          if (res.data.apiPlayerName) setDisplayName(res.data.apiPlayerName);
+        }
       })
-      .finally(() => setLoading(false));
+      .catch(() => {});
+
+    Promise.all([seasonPromise, playerPromise]).finally(() => setLoading(false));
   }, [navigate]);
 
   function handleLogout() {
@@ -44,7 +57,7 @@ export default function DashboardPage() {
           <span className="dash-header__name">Gods of Death</span>
         </div>
         <div className="dash-header__right">
-          {playerName && <span className="dash-header__player">{playerName}</span>}
+          {displayName && <span className="dash-header__player">{displayName}</span>}
           {isAdmin && (
             <button
               className="dash-assignments-btn"
@@ -63,6 +76,8 @@ export default function DashboardPage() {
 
         {data && (
           <>
+            {playerInfo && <PlayerInfoPanel info={playerInfo} />}
+
             <div className="dash-season-bar">
               <span className="dash-season-label">Stagione</span>
               <span className="dash-season-value">{data.season}</span>

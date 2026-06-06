@@ -17,6 +17,12 @@ export default function AuthCallbackPage() {
     const errorParam = searchParams.get('error');
 
     if (errorParam) {
+      // access_denied when prompt=none means the user hasn't authorized the app
+      // yet — redirect silently back to login which will retry with prompt=consent.
+      if (errorParam === 'access_denied') {
+        navigate('/?retry=true', { replace: true });
+        return;
+      }
       setError('Accesso Discord negato.');
       setTimeout(() => navigate('/'), 3000);
       return;

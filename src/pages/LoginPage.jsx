@@ -1,18 +1,38 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import './LoginPage.css';
 
 const DISCORD_CLIENT_ID = import.meta.env.VITE_DISCORD_CLIENT_ID;
 const DISCORD_REDIRECT_URI = import.meta.env.VITE_DISCORD_REDIRECT_URI;
 
+function buildDiscordUrl(prompt) {
+  const params = new URLSearchParams({
+    client_id: DISCORD_CLIENT_ID,
+    redirect_uri: DISCORD_REDIRECT_URI,
+    response_type: 'code',
+    scope: 'identify',
+    prompt,
+  });
+  return `https://discord.com/oauth2/authorize?${params}`;
+}
+
 export default function LoginPage() {
+  const [searchParams] = useSearchParams();
+
+  // When AuthCallbackPage sends back ?retry=true it means prompt=none failed
+  // because the user hasn't authorized yet — auto-retry showing the consent screen.
+  useEffect(() => {
+    if (searchParams.get('retry') === 'true') {
+      window.location.href = buildDiscordUrl('consent');
+    }
+  }, []);
+
   function handleDiscordLogin() {
-    const params = new URLSearchParams({
-      client_id: DISCORD_CLIENT_ID,
-      redirect_uri: DISCORD_REDIRECT_URI,
-      response_type: 'code',
-      scope: 'identify',
-    });
-    window.location.href = `https://discord.com/oauth2/authorize?${params}`;
+    // prompt=none: if the user has already authorized the app Discord redirects
+    // silently without showing the consent screen — greatly reduces friction on
+    // re-login after JWT expiry. For first-time users AuthCallbackPage will
+    // catch the access_denied error and send them back here with ?retry=true.
+    window.location.href = buildDiscordUrl('none');
   }
 
   return (

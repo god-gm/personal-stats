@@ -59,7 +59,7 @@ function EncounterCard({ enc, isBoss }) {
         <StatBlock label="ATTACCHI"         value={enc.playerAttackCount} />
         <StatBlock label="MEDIA PERSONALE"  value={fmt(enc.playerAverage || null)} accent />
         <StatBlock label="TOP RUN PERS."    value={fmt(enc.playerBest || null)} />
-        <StatBlock label="MEDIA GILDA"      value={fmt(enc.guildAverage)} />
+        <StatBlock label="MEDIA GILDA"      value={fmt(enc.guildAverage || null)} />
       </div>
     </div>
   );

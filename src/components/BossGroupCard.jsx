@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import PerformanceIndicator from './PerformanceIndicator';
 import './BossGroupCard.css';
 
+const CDN = 'https://cdn.ezekiel.snowprintstudios.com';
+
 const fmt = (n) => (n != null ? n.toLocaleString('it-IT') : '—');
 
 const ASSIGNMENT_LABELS = {
@@ -30,6 +32,39 @@ function StatBlock({ label, value, accent }) {
   );
 }
 
+function EncounterCard({ enc, isBoss }) {
+  return (
+    <div className={`enc-card ${isBoss ? 'enc-card--boss' : 'enc-card--side'}`}>
+      <div className="enc-card__header">
+        <img
+          className="enc-card__portrait"
+          src={`${CDN}/${enc.unitId}_BattlePreviewPopUp.png`}
+          alt=""
+          onError={(e) => { e.currentTarget.style.display = 'none'; }}
+        />
+        <div className="enc-card__header-content">
+          <div className="enc-card__title-group">
+            <span className={`enc-card__tag ${isBoss ? 'enc-card__tag--boss' : 'enc-card__tag--side'}`}>
+              {isBoss ? 'BOSS' : 'SIDE'}
+            </span>
+            <span className="enc-card__name">{enc.name}</span>
+          </div>
+          <div className="enc-card__meta">
+            <AssignmentBadge type={enc.assignmentType} />
+            <PerformanceIndicator value={enc.performanceIndicator} />
+          </div>
+        </div>
+      </div>
+      <div className="enc-card__stats">
+        <StatBlock label="ATTACCHI"         value={enc.playerAttackCount} />
+        <StatBlock label="MEDIA PERSONALE"  value={fmt(enc.playerAverage)} accent />
+        <StatBlock label="TOP RUN PERS."    value={fmt(enc.playerBest || null)} />
+        <StatBlock label="MEDIA GILDA"      value={fmt(enc.guildAverage)} />
+      </div>
+    </div>
+  );
+}
+
 export default function BossGroupCard({ group }) {
   const [expanded, setExpanded] = useState(true);
   const { label, bossName, encounters } = group;
@@ -49,47 +84,9 @@ export default function BossGroupCard({ group }) {
 
       {expanded && (
         <div className="bgc__body">
-          {boss && (
-            <div className="enc-card enc-card--boss">
-              <div className="enc-card__header">
-                <span className="enc-card__skull">☠</span>
-                <div className="enc-card__title-group">
-                  <span className="enc-card__tag enc-card__tag--boss">BOSS</span>
-                  <span className="enc-card__name">{boss.name}</span>
-                </div>
-              </div>
-              <div className="enc-card__meta">
-                <AssignmentBadge type={boss.assignmentType} />
-                <PerformanceIndicator value={boss.performanceIndicator} />
-              </div>
-              <div className="enc-card__stats">
-                <StatBlock label="ATTACCHI" value={boss.playerAttackCount} />
-                <StatBlock label="MEDIA PERSONALE" value={fmt(boss.playerAverage)} accent />
-                <StatBlock label="TOP RUN PERSONALE" value={fmt(boss.playerBest || null)} />
-                <StatBlock label="MEDIA GILDA" value={fmt(boss.guildAverage)} />
-              </div>
-            </div>
-          )}
-
+          {boss && <EncounterCard enc={boss} isBoss={true} />}
           {sides.map((enc) => (
-            <div key={enc.unitId} className="enc-card enc-card--side">
-              <div className="enc-card__header">
-                <div className="enc-card__title-group">
-                  <span className="enc-card__tag enc-card__tag--side">SIDE</span>
-                  <span className="enc-card__name">{enc.name}</span>
-                </div>
-              </div>
-              <div className="enc-card__meta">
-                <AssignmentBadge type={enc.assignmentType} />
-                <PerformanceIndicator value={enc.performanceIndicator} />
-              </div>
-              <div className="enc-card__stats">
-                <StatBlock label="ATTACCHI" value={enc.playerAttackCount} />
-                <StatBlock label="MEDIA PERSONALE" value={fmt(enc.playerAverage)} accent />
-                <StatBlock label="TOP RUN PERSONALE" value={fmt(enc.playerBest || null)} />
-                <StatBlock label="MEDIA GILDA" value={fmt(enc.guildAverage)} />
-              </div>
-            </div>
+            <EncounterCard key={enc.unitId} enc={enc} isBoss={false} />
           ))}
         </div>
       )}

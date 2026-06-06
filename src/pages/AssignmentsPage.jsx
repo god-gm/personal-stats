@@ -176,12 +176,38 @@ export default function AssignmentsPage() {
     if (!stats) return [];
     const keys = [];
     for (const b of stats.bosses) {
-      keys.push({ key: b.apiType, label: b.bossDesc, isBoss: true, boss: b });
+      const bossKey = `${b.levelId}_${b.apiType}`;
+      keys.push({ key: bossKey, label: b.bossDesc, isBoss: true, boss: b });
       for (const m of b.minis) {
-        keys.push({ key: `${b.apiType}__${m.unitId}`, label: m.name, isBoss: false, mini: m, boss: b });
+        keys.push({ key: `${bossKey}__${m.unitId}`, label: m.name, isBoss: false, mini: m, boss: b });
       }
     }
     return keys;
+  }
+
+  function migrateAssignments(oldAssignments, bosses) {
+    const bossLevels = {};
+    for (const boss of bosses) {
+      if (!bossLevels[boss.apiType]) bossLevels[boss.apiType] = [];
+      bossLevels[boss.apiType].push(boss.levelId);
+    }
+    const result = {};
+    for (const [userId, userAssignments] of Object.entries(oldAssignments)) {
+      const migrated = {};
+      for (const [key, value] of Object.entries(userAssignments)) {
+        if (/^\d+_/.test(key)) {
+          migrated[key] = value;
+        } else {
+          const apiType = key.includes('__') ? key.split('__')[0] : key;
+          const levelIds = bossLevels[apiType] || [];
+          for (const levelId of levelIds) {
+            migrated[`${levelId}_${key}`] = value;
+          }
+        }
+      }
+      result[userId] = migrated;
+    }
+    return result;
   }
 
   // ── Save ─────────────────────────────────────────────────────────────────
@@ -231,7 +257,10 @@ export default function AssignmentsPage() {
       if (res.status !== 'OK') { setLoadError(res.message || 'Non trovato'); return; }
       const parsed = JSON.parse(res.data);
       if (parsed.config)      setConfig(parsed.config);
-      if (parsed.assignments) setAssignments(parsed.assignments);
+      if (parsed.assignments) {
+        const bosses = parsed.stats?.bosses || [];
+        setAssignments(bosses.length ? migrateAssignments(parsed.assignments, bosses) : parsed.assignments);
+      }
       if (parsed.saveSeason)  setSaveSeason(parsed.saveSeason);
       else                    setSaveSeason(Number(loadSeason));
       if (parsed.stats) {
@@ -419,8 +448,10 @@ export default function AssignmentsPage() {
                   </tr>
                 </thead>
                 <tbody>
-                  {stats.bosses.map(boss => (
-                    <React.Fragment key={boss.apiType}>
+                  {stats.bosses.map(boss => {
+                    const bossKey = `${boss.levelId}_${boss.apiType}`;
+                    return (
+                    <React.Fragment key={bossKey}>
                       {/* Boss row */}
                       <tr className="assign-tr assign-tr--boss">
                         <td className="assign-td assign-td--target">
@@ -432,18 +463,18 @@ export default function AssignmentsPage() {
                         </td>
                         <td className="assign-td assign-td--guild">{fmt(boss.guildAverage)}</td>
                         <td className="assign-td assign-td--count assign-count--cons">
-                          {countByType(boss.apiType, 'consigliato')}
+                          {countByType(bossKey, 'consigliato')}
                         </td>
                         <td className="assign-td assign-td--count assign-count--aff">
-                          {countByType(boss.apiType, 'affrontabile')}
+                          {countByType(bossKey, 'affrontabile')}
                         </td>
                         <td className="assign-td assign-td--count assign-count--scon">
-                          {countByType(boss.apiType, 'sconsigliato')}
+                          {countByType(bossKey, 'sconsigliato')}
                         </td>
                         <td className="assign-td">
                           <button
                             className="assign-detail-btn"
-                            onClick={() => openDetail(boss.apiType, boss.bossDesc)}
+                            onClick={() => openDetail(bossKey, boss.bossDesc)}
                           >
                             ▶
                           </button>
@@ -451,7 +482,7 @@ export default function AssignmentsPage() {
                       </tr>
                       {/* Mini rows */}
                       {boss.minis.map(mini => {
-                        const miniKey = `${boss.apiType}__${mini.unitId}`;
+                        const miniKey = `${bossKey}__${mini.unitId}`;
                         return (
                           <tr key={miniKey} className="assign-tr assign-tr--mini">
                             <td className="assign-td assign-td--target assign-td--mini">
@@ -479,7 +510,8 @@ export default function AssignmentsPage() {
                         );
                       })}
                     </React.Fragment>
-                  ))}
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -600,10 +632,21 @@ function AssignBadge({ value }) {
 // ── Detail popup component ────────────────────────────────────────────────────
 
 function DetailPopup({ targetKey, label, stats, assignments, setPlayerAssignment, onClose }) {
-  const isMini   = targetKey.includes('__');
-  const [bossType, miniUnitId] = isMini ? targetKey.split('__') : [targetKey, null];
+  const isMini = targetKey.includes('__');
+  let levelId, apiType, miniUnitId;
+  if (isMini) {
+    const [bossWithLevel, mUnitId] = targetKey.split('__');
+    const sepIdx = bossWithLevel.indexOf('_');
+    levelId = parseInt(bossWithLevel.substring(0, sepIdx));
+    apiType = bossWithLevel.substring(sepIdx + 1);
+    miniUnitId = mUnitId;
+  } else {
+    const sepIdx = targetKey.indexOf('_');
+    levelId = parseInt(targetKey.substring(0, sepIdx));
+    apiType = targetKey.substring(sepIdx + 1);
+  }
 
-  const bossData = stats.bosses.find(b => b.apiType === bossType);
+  const bossData = stats.bosses.find(b => b.apiType === apiType && b.levelId === levelId);
   const miniData = isMini && bossData ? bossData.minis.find(m => m.unitId === miniUnitId) : null;
   const rawPlayerStats = (miniData ? miniData.playerStats : bossData?.playerStats) || [];
   const playerStats = [...rawPlayerStats].sort((a, b) => a.playerName.localeCompare(b.playerName));
@@ -684,8 +727,8 @@ function PlayerDetailPopup({ userId, playerName, stats, assignments, setPlayerAs
             </thead>
             <tbody>
               {stats.bosses.map(boss => {
-                const bossKey     = boss.apiType;
-                const bossVal     = assignments[userId]?.[bossKey] || 'sconsigliato';
+                const bossKey = `${boss.levelId}_${boss.apiType}`;
+                const bossVal = assignments[userId]?.[bossKey] || 'sconsigliato';
 
                 return (
                   <React.Fragment key={bossKey}>
@@ -710,7 +753,7 @@ function PlayerDetailPopup({ userId, playerName, stats, assignments, setPlayerAs
 
                     {/* Mini rows */}
                     {boss.minis.map(mini => {
-                      const miniKey = `${boss.apiType}__${mini.unitId}`;
+                      const miniKey = `${bossKey}__${mini.unitId}`;
                       const miniVal = assignments[userId]?.[miniKey] || 'sconsigliato';
                       return (
                         <tr key={miniKey} className={`detail-tr detail-tr--${miniVal}`}>

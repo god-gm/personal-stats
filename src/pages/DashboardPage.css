@@ -199,17 +199,17 @@
   white-space: nowrap;
 }
 .dash-legend__badge--consigliato {
-  color: #4caf50;
+  color: #ffffff;
   border-color: rgba(76, 175, 80, 0.55);
   background: rgba(76, 175, 80, 0.1);
 }
 .dash-legend__badge--affrontabile {
-  color: #ffb347;
+  color: #ffffff;
   border-color: rgba(255, 179, 71, 0.55);
   background: rgba(255, 179, 71, 0.1);
 }
 .dash-legend__badge--sconsigliato {
-  color: #ef5350;
+  color: #ffffff;
   border-color: rgba(239, 83, 80, 0.55);
   background: rgba(239, 83, 80, 0.1);
 }

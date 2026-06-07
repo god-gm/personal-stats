@@ -514,3 +514,34 @@
   border-color: rgba(255, 160, 64, 0.7);
   color: #ffcc88;
 }
+
+/* ── Mobile header: due righe (≤ 640px) ──────────────────────────────────── */
+@media (max-width: 640px) {
+  .dash-header {
+    height: auto;
+    padding: 0.5rem 0.85rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
+  }
+
+  .dash-header__logo {
+    width: 100%;
+  }
+
+  .dash-header__name {
+    display: block;
+    font-size: 0.78rem;
+  }
+
+  .dash-header__right {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 0.6rem;
+  }
+
+  .dash-header__player {
+    font-size: 0.55rem;
+    white-space: nowrap;
+  }
+}

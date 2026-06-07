@@ -222,38 +222,44 @@
 
 /* ── Mobile layout (≤ 640px) ── */
 @media (max-width: 640px) {
-  /* Header: altezza auto, padding ridotto */
+  /* Header: due righe — logo sopra, pulsanti sotto */
   .dash-header {
     height: auto;
-    min-height: 52px;
-    padding: 0.45rem 0.85rem;
-    flex-wrap: wrap;
-    gap: 0.35rem;
+    padding: 0.5rem 0.85rem;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.4rem;
   }
 
-  /* Nascondi il nome app, lascia solo il simbolo */
-  .dash-header__name {
-    display: none;
+  /* Riga 1: logo occupa tutta la larghezza */
+  .dash-header__logo {
+    width: 100%;
   }
 
   .dash-header__icon {
     font-size: 1.4rem;
   }
 
+  /* Mostra il nome completo (non serve troncare) */
+  .dash-header__name {
+    display: block;
+    font-size: 0.78rem;
+  }
+
+  /* Riga 2: player name + pulsanti allineati a destra */
   .dash-header__right {
+    width: 100%;
+    justify-content: flex-end;
     gap: 0.6rem;
   }
 
-  /* Player name: più piccolo per non rubare spazio */
+  /* Player name: dimensione ridotta, senza troncamento */
   .dash-header__player {
     font-size: 0.55rem;
-    max-width: 120px;
-    overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  /* Bottoni: tap target più grande */
+  /* Bottoni: tap target adeguato */
   .dash-logout-btn,
   .dash-assignments-btn {
     padding: 0.45rem 0.85rem;

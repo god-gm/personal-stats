@@ -200,21 +200,18 @@
 }
 .dash-legend__badge--consigliato {
   color: #ffffff;
-  border-color: rgba(76, 175, 80, 0.9);
-  background: rgba(76, 175, 80, 0.45);
-  border-width: 2px;
+  border-color: rgba(76, 175, 80, 0.55);
+  background: rgba(76, 175, 80, 0.1);
 }
 .dash-legend__badge--affrontabile {
-  color: #ffffff;
-  border-color: rgba(255, 179, 71, 0.9);
-  background: rgba(255, 179, 71, 0.45);
-  border-width: 2px;
+  color: #ffb347;
+  border-color: rgba(255, 179, 71, 0.55);
+  background: rgba(255, 179, 71, 0.1);
 }
 .dash-legend__badge--sconsigliato {
-  color: #ffffff;
-  border-color: rgba(239, 83, 80, 0.9);
-  background: rgba(239, 83, 80, 0.45);
-  border-width: 2px;
+  color: #ef5350;
+  border-color: rgba(239, 83, 80, 0.55);
+  background: rgba(239, 83, 80, 0.1);
 }
 
 .dash-legend__desc {

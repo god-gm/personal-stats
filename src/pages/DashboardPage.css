@@ -194,22 +194,22 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   padding: 0.2rem 0.6rem;
-  border: 2px solid;
+  border: 1px solid;
   clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
   white-space: nowrap;
 }
 .dash-legend__badge--consigliato {
-  color: #ffffff;
+  color: #4caf50;
   border-color: rgba(76, 175, 80, 0.55);
   background: rgba(76, 175, 80, 0.1);
 }
 .dash-legend__badge--affrontabile {
-  color: #ffffff;
+  color: #ffb347;
   border-color: rgba(255, 179, 71, 0.55);
   background: rgba(255, 179, 71, 0.1);
 }
 .dash-legend__badge--sconsigliato {
-  color: #ffffff;
+  color: #ef5350;
   border-color: rgba(239, 83, 80, 0.55);
   background: rgba(239, 83, 80, 0.1);
 }

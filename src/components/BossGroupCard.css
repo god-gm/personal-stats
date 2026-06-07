@@ -207,7 +207,7 @@
   font-weight: 700;
   letter-spacing: 0.06em;
   padding: 0.2rem 0.6rem;
-  border: 1px solid;
+  border: 2px solid;
   clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
   white-space: nowrap;
 }

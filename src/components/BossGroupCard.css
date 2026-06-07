@@ -213,19 +213,22 @@
 }
 
 .enc-assign-badge--consigliato {
-  color: #4caf50;
-  border-color: rgba(76, 175, 80, 0.55);
-  background: rgba(76, 175, 80, 0.1);
+  color: #ffffff;
+  border-color: rgba(76, 175, 80, 0.9);
+  background: rgba(76, 175, 80, 0.45);
+  border-width: 2px;
 }
 .enc-assign-badge--affrontabile {
-  color: #ffb347;
-  border-color: rgba(255, 179, 71, 0.55);
-  background: rgba(255, 179, 71, 0.1);
+  color: #ffffff;
+  border-color: rgba(255, 179, 71, 0.9);
+  background: rgba(255, 179, 71, 0.45);
+  border-width: 2px;
 }
 .enc-assign-badge--sconsigliato {
-  color: #ef5350;
-  border-color: rgba(239, 83, 80, 0.55);
-  background: rgba(239, 83, 80, 0.1);
+  color: #ffffff;
+  border-color: rgba(239, 83, 80, 0.9);
+  background: rgba(239, 83, 80, 0.45);
+  border-width: 2px;
 }
 
 /* ── Shared stat block ── */

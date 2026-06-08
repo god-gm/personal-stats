@@ -24,6 +24,8 @@ export default function LoginPage() {
   useEffect(() => {
     if (searchParams.get('retry') === 'true') {
       window.location.href = buildDiscordUrl('consent');
+    } else {
+      window.location.href = buildDiscordUrl('none');
     }
   }, []);
 

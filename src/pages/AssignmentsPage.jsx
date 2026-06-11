@@ -338,26 +338,37 @@ export default function AssignmentsPage() {
       });
       hRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
 
-      // ── Player rows ──────────────────────────────────────────────────────
-      // Column layout: 1=PLAYER, 2=TOT.CONS., 3..N+2=targets
-      const players = stats.playerAssignments.map(pa => ({ userId: pa.userId, playerName: pa.playerName }));
-      for (const p of players) {
-        const ua = assignments[p.userId] || {};
-        let consCount = 0;
-        const assignValues = [];
-        for (const t of targets) {
-          const val = ua[t.key] || 'sconsigliato';
-          assignValues.push(LABEL_EXPORT[val]);
-          if (val === 'consigliato') consCount++;
+      // Converts 1-based column index to Excel letter(s): 1→A, 27→AA, etc.
+      function colLetter(n) {
+        let s = '';
+        while (n > 0) {
+          const rem = (n - 1) % 26;
+          s = String.fromCharCode(65 + rem) + s;
+          n = Math.floor((n - 1) / 26);
         }
-        const rowValues = [p.playerName, consCount, ...assignValues];
+        return s;
+      }
 
-        const row = ws.addRow(rowValues);
+      // ── Player rows ──────────────────────────────────────────────────────
+      // Column layout: 1=PLAYER, 2=TOT.CONS.(formula), 3..N+2=targets
+      const players = stats.playerAssignments.map(pa => ({ userId: pa.userId, playerName: pa.playerName }));
+      const firstDataRow = 2;                          // row 1 is header
+      const lastDataRow  = firstDataRow + players.length - 1;
+      const firstTargetCol = colLetter(3);
+      const lastTargetCol  = colLetter(targets.length + 2);
+
+      players.forEach((p, pIdx) => {
+        const rowNum = firstDataRow + pIdx;
+        const ua = assignments[p.userId] || {};
+        const assignValues = targets.map(t => LABEL_EXPORT[ua[t.key] || 'sconsigliato']);
+        // col 2 is left empty here — will be overwritten with formula below
+        const row = ws.addRow([p.playerName, null, ...assignValues]);
 
         row.getCell(1).font = { bold: true, color: { argb: 'FFC8D8E8' }, size: 10 };
         row.getCell(1).fill = DARK_BG;
 
         const totCell = row.getCell(2);
+        totCell.value = { formula: `COUNTIF(${firstTargetCol}${rowNum}:${lastTargetCol}${rowNum},"Consigliato")` };
         totCell.font = { bold: true, color: { argb: 'FF40C880' }, size: 10 };
         totCell.fill = DARK_BG;
         totCell.alignment = { horizontal: 'center', vertical: 'middle' };
@@ -369,19 +380,25 @@ export default function AssignmentsPage() {
           cell.font = { color: CELL_FONT_COLOR[val], size: 10 };
           cell.alignment = { horizontal: 'center', vertical: 'middle' };
         });
-      }
+      });
 
       // ── Total row ────────────────────────────────────────────────────────
-      // Same column layout: 1=TOTALE label, 2=grand total, 3..N+2=per-target counts
-      let grandTotal = 0;
-      const perTargetCounts = targets.map(t => {
-        const cnt = countByType(t.key, 'consigliato');
-        grandTotal += cnt;
-        return cnt;
-      });
-      const totalValues = ['TOTALE', grandTotal, ...perTargetCounts];
+      // col 2 = SUM of the TOT.CONS. column; cols 3..N+2 = COUNTIF per target
+      const tRow = ws.addRow(['TOTALE', null, ...targets.map(() => null)]);
 
-      const tRow = ws.addRow(totalValues);
+      // Grand total: sum of the TOT.CONS. column
+      const bCol = colLetter(2);
+      tRow.getCell(2).value = { formula: `SUM(${bCol}${firstDataRow}:${bCol}${lastDataRow})` };
+
+      // Per-target count: COUNTIF down each target column
+      targets.forEach((_, idx) => {
+        const colIdx = idx + 3;
+        const col = colLetter(colIdx);
+        tRow.getCell(colIdx).value = {
+          formula: `COUNTIF(${col}${firstDataRow}:${col}${lastDataRow},"Consigliato")`,
+        };
+      });
+
       tRow.eachCell((cell, col) => {
         cell.font = { bold: true, color: { argb: 'FFFFA040' }, size: 10 };
         cell.fill = HEADER_BG;

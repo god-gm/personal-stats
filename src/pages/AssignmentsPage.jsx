@@ -322,8 +322,12 @@ export default function AssignmentsPage() {
       // ── Header row ──────────────────────────────────────────────────────
       const headerValues = [
         'PLAYER',
-        ...targets.map(t => t.isBoss ? t.label : `└ ${t.label}`),
         'TOT. CONS.',
+        ...targets.map(t =>
+          t.isBoss
+            ? `[${t.boss.levelDesc}][B] ${t.label}`
+            : `[${t.boss.levelDesc}][S] ${t.label}`
+        ),
       ];
       const hRow = ws.addRow(headerValues);
       hRow.height = 30;
@@ -335,46 +339,47 @@ export default function AssignmentsPage() {
       hRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
 
       // ── Player rows ──────────────────────────────────────────────────────
+      // Column layout: 1=PLAYER, 2=TOT.CONS., 3..N+2=targets
       const players = stats.playerAssignments.map(pa => ({ userId: pa.userId, playerName: pa.playerName }));
       for (const p of players) {
         const ua = assignments[p.userId] || {};
         let consCount = 0;
-        const rowValues = [p.playerName];
+        const assignValues = [];
         for (const t of targets) {
           const val = ua[t.key] || 'sconsigliato';
-          rowValues.push(LABEL_EXPORT[val]);
+          assignValues.push(LABEL_EXPORT[val]);
           if (val === 'consigliato') consCount++;
         }
-        rowValues.push(consCount);
+        const rowValues = [p.playerName, consCount, ...assignValues];
 
         const row = ws.addRow(rowValues);
 
         row.getCell(1).font = { bold: true, color: { argb: 'FFC8D8E8' }, size: 10 };
         row.getCell(1).fill = DARK_BG;
 
+        const totCell = row.getCell(2);
+        totCell.font = { bold: true, color: { argb: 'FF40C880' }, size: 10 };
+        totCell.fill = DARK_BG;
+        totCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
         targets.forEach((t, idx) => {
           const val = ua[t.key] || 'sconsigliato';
-          const cell = row.getCell(idx + 2);
+          const cell = row.getCell(idx + 3);
           cell.fill = CELL_FILL[val];
           cell.font = { color: CELL_FONT_COLOR[val], size: 10 };
           cell.alignment = { horizontal: 'center', vertical: 'middle' };
         });
-
-        const totCell = row.getCell(targets.length + 2);
-        totCell.font = { bold: true, color: { argb: 'FF40C880' }, size: 10 };
-        totCell.fill = DARK_BG;
-        totCell.alignment = { horizontal: 'center', vertical: 'middle' };
       }
 
       // ── Total row ────────────────────────────────────────────────────────
-      const totalValues = ['TOTALE'];
+      // Same column layout: 1=TOTALE label, 2=grand total, 3..N+2=per-target counts
       let grandTotal = 0;
-      for (const t of targets) {
+      const perTargetCounts = targets.map(t => {
         const cnt = countByType(t.key, 'consigliato');
-        totalValues.push(cnt);
         grandTotal += cnt;
-      }
-      totalValues.push(grandTotal);
+        return cnt;
+      });
+      const totalValues = ['TOTALE', grandTotal, ...perTargetCounts];
 
       const tRow = ws.addRow(totalValues);
       tRow.eachCell((cell, col) => {
@@ -385,10 +390,10 @@ export default function AssignmentsPage() {
 
       // ── Column widths ─────────────────────────────────────────────────────
       ws.getColumn(1).width = 22;
-      for (let c = 2; c <= targets.length + 1; c++) {
-        ws.getColumn(c).width = 15;
+      ws.getColumn(2).width = 12;
+      for (let c = 3; c <= targets.length + 2; c++) {
+        ws.getColumn(c).width = 18;
       }
-      ws.getColumn(targets.length + 2).width = 12;
 
       // ── Download ──────────────────────────────────────────────────────────
       const buffer = await workbook.xlsx.writeBuffer();

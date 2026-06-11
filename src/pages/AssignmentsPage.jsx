@@ -9,6 +9,7 @@ import {
   loadAssignment,
   checkAssignmentExists,
 } from '../api/client';
+import ScifiSpinner from '../components/ScifiSpinner';
 import './AssignmentsPage.css';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -58,9 +59,11 @@ export default function AssignmentsPage() {
   const [saveName, setSaveName] = useState('');
   const [saveSeason, setSaveSeason] = useState(null);
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [loadName, setLoadName] = useState('');
   const [loadSeason, setLoadSeason] = useState('');
   const [loadError, setLoadError] = useState('');
+  const [exporting, setExporting] = useState(false);
 
   // Toast notification
   const [toast, setToast] = useState(null); // { message, type: 'success'|'error' }
@@ -252,6 +255,7 @@ export default function AssignmentsPage() {
   async function handleLoad() {
     if (!loadName || !loadSeason) return;
     setLoadError('');
+    setLoading(true);
     try {
       const res = await loadAssignment(loadName, Number(loadSeason));
       if (res.status !== 'OK') { setLoadError(res.message || 'Non trovato'); return; }
@@ -273,6 +277,8 @@ export default function AssignmentsPage() {
       showToast('Caricamento completato', 'success');
     } catch (e) {
       setLoadError('Errore nel caricamento: ' + (e.message || 'sconosciuto'));
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -281,6 +287,125 @@ export default function AssignmentsPage() {
       const res = await listSavedAssignments();
       if (res.status === 'OK') setSavedList(res.data || []);
     } catch (_) {}
+  }
+
+  // ── Export ───────────────────────────────────────────────────────────────
+  async function handleExport() {
+    if (!stats) return;
+    setExporting(true);
+    try {
+      const { default: ExcelJS } = await import('exceljs');
+      const workbook = new ExcelJS.Workbook();
+      const sheetName = `S${stats.currentSeason}`;
+      const ws = workbook.addWorksheet(sheetName);
+
+      const targets = allTargetKeys();
+
+      const CELL_FILL = {
+        consigliato:  { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE8F5E9' } },
+        affrontabile: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFF8E1' } },
+        sconsigliato: { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFFFEBEE' } },
+      };
+      const CELL_FONT_COLOR = {
+        consigliato:  { argb: 'FF2E7D32' },
+        affrontabile: { argb: 'FFE65100' },
+        sconsigliato: { argb: 'FFC62828' },
+      };
+      const LABEL_EXPORT = {
+        consigliato:  'Consigliato',
+        affrontabile: 'Affrontabile',
+        sconsigliato: 'Sconsigliato',
+      };
+      const DARK_BG    = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF070D18' } };
+      const HEADER_BG  = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF0D1B2A' } };
+
+      // ── Header row ──────────────────────────────────────────────────────
+      const headerValues = [
+        'PLAYER',
+        ...targets.map(t => t.isBoss ? t.label : `└ ${t.label}`),
+        'TOT. CONS.',
+      ];
+      const hRow = ws.addRow(headerValues);
+      hRow.height = 30;
+      hRow.eachCell(cell => {
+        cell.font = { bold: true, color: { argb: 'FF00C8FF' }, size: 10 };
+        cell.fill = HEADER_BG;
+        cell.alignment = { horizontal: 'center', vertical: 'middle', wrapText: true };
+      });
+      hRow.getCell(1).alignment = { horizontal: 'left', vertical: 'middle' };
+
+      // ── Player rows ──────────────────────────────────────────────────────
+      const players = stats.playerAssignments.map(pa => ({ userId: pa.userId, playerName: pa.playerName }));
+      for (const p of players) {
+        const ua = assignments[p.userId] || {};
+        let consCount = 0;
+        const rowValues = [p.playerName];
+        for (const t of targets) {
+          const val = ua[t.key] || 'sconsigliato';
+          rowValues.push(LABEL_EXPORT[val]);
+          if (val === 'consigliato') consCount++;
+        }
+        rowValues.push(consCount);
+
+        const row = ws.addRow(rowValues);
+
+        row.getCell(1).font = { bold: true, color: { argb: 'FFC8D8E8' }, size: 10 };
+        row.getCell(1).fill = DARK_BG;
+
+        targets.forEach((t, idx) => {
+          const val = ua[t.key] || 'sconsigliato';
+          const cell = row.getCell(idx + 2);
+          cell.fill = CELL_FILL[val];
+          cell.font = { color: CELL_FONT_COLOR[val], size: 10 };
+          cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        });
+
+        const totCell = row.getCell(targets.length + 2);
+        totCell.font = { bold: true, color: { argb: 'FF40C880' }, size: 10 };
+        totCell.fill = DARK_BG;
+        totCell.alignment = { horizontal: 'center', vertical: 'middle' };
+      }
+
+      // ── Total row ────────────────────────────────────────────────────────
+      const totalValues = ['TOTALE'];
+      let grandTotal = 0;
+      for (const t of targets) {
+        const cnt = countByType(t.key, 'consigliato');
+        totalValues.push(cnt);
+        grandTotal += cnt;
+      }
+      totalValues.push(grandTotal);
+
+      const tRow = ws.addRow(totalValues);
+      tRow.eachCell((cell, col) => {
+        cell.font = { bold: true, color: { argb: 'FFFFA040' }, size: 10 };
+        cell.fill = HEADER_BG;
+        if (col > 1) cell.alignment = { horizontal: 'center', vertical: 'middle' };
+      });
+
+      // ── Column widths ─────────────────────────────────────────────────────
+      ws.getColumn(1).width = 22;
+      for (let c = 2; c <= targets.length + 1; c++) {
+        ws.getColumn(c).width = 15;
+      }
+      ws.getColumn(targets.length + 2).width = 12;
+
+      // ── Download ──────────────────────────────────────────────────────────
+      const buffer = await workbook.xlsx.writeBuffer();
+      const blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${sheetName}_assignments.xlsx`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      showToast('Errore esportazione: ' + (err.message || 'sconosciuto'), 'error');
+    } finally {
+      setExporting(false);
+    }
   }
 
   function handleLogout() {
@@ -554,6 +679,16 @@ export default function AssignmentsPage() {
                 </tbody>
               </table>
             </div>
+
+            <div className="assign-export-row">
+              <button
+                className="assign-export-btn"
+                disabled={exporting}
+                onClick={handleExport}
+              >
+                {exporting ? '...' : 'EXPORT'}
+              </button>
+            </div>
           </section>
         )}
       </main>
@@ -614,6 +749,15 @@ export default function AssignmentsPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── Loading spinner ─────────────────────────────────────────────────── */}
+      {(computing || saving || loading) && (
+        <ScifiSpinner message={
+          computing ? 'CALCOLO IN CORSO...' :
+          saving    ? 'SALVATAGGIO...' :
+                      'CARICAMENTO...'
+        } />
       )}
     </div>
   );

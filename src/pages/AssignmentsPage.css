@@ -515,6 +515,36 @@
   color: #ffcc88;
 }
 
+/* ── Export ──────────────────────────────────────────────────────────────── */
+.assign-export-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.assign-export-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0.5rem 1.5rem;
+  background: transparent;
+  border: 1px solid rgba(64, 200, 128, 0.35);
+  color: #40c880;
+  cursor: pointer;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.assign-export-btn:not(:disabled):hover {
+  background: rgba(64, 200, 128, 0.08);
+  border-color: rgba(64, 200, 128, 0.65);
+  color: #70e0a0;
+}
+.assign-export-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
 /* ── Mobile header: due righe (≤ 640px) ──────────────────────────────────── */
 @media (max-width: 640px) {
   .dash-header {

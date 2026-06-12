@@ -210,9 +210,11 @@
 }
 .assign-th--count { text-align: center; width: 70px; }
 .assign-th--guild { width: 120px; }
+.assign-th--hide  { text-align: center; width: 54px; }
 
 .assign-tr--boss { background: rgba(0, 200, 255, 0.04); }
 .assign-tr--mini { background: rgba(0, 0, 0, 0); }
+.assign-tr--hidden { opacity: 0.45; }
 .assign-tr:hover { background: rgba(0, 200, 255, 0.06); }
 
 .assign-td {
@@ -242,6 +244,14 @@
 .assign-count--scon  { color: #ff5555; }
 
 .assign-td--player { color: #c8d8e8; font-weight: 600; }
+
+.assign-td--hide { text-align: center; }
+.assign-hide-check {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: #ff5555;
+}
 
 .assign-level-badge {
   display: inline-block;

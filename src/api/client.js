@@ -63,11 +63,15 @@ export async function listSavedAssignments() {
   return request('/api/assignments/list');
 }
 
-export async function saveAssignment(name, seasonNumber, assignmentData) {
+export async function saveAssignment(name, seasonNumber, assignmentData, hiddenSides = []) {
   return request('/api/assignments/save', {
     method: 'POST',
-    body: JSON.stringify({ name, seasonNumber, assignmentData }),
+    body: JSON.stringify({ name, seasonNumber, assignmentData, hiddenSides }),
   });
+}
+
+export async function loadHiddenSides(name) {
+  return request(`/api/assignments/hidden-sides?name=${encodeURIComponent(name)}`);
 }
 
 export async function loadAssignment(name, seasonNumber) {

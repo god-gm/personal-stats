@@ -7,6 +7,7 @@ import {
   listSavedAssignments,
   saveAssignment,
   loadAssignment,
+  loadHiddenSides,
   checkAssignmentExists,
 } from '../api/client';
 import ScifiSpinner from '../components/ScifiSpinner';
@@ -48,6 +49,9 @@ export default function AssignmentsPage() {
   // Assignments editable state
   // key: playerId, value: { targetKey → 'consigliato'|'affrontabile'|'sconsigliato' }
   const [assignments, setAssignments] = useState({});
+
+  // Hidden sides: Set of mini target keys that should be hidden in the dashboard
+  const [hiddenSides, setHiddenSides] = useState(new Set());
 
   // Detail popup (boss/mini view)
   const [detailTarget, setDetailTarget] = useState(null);
@@ -115,6 +119,7 @@ export default function AssignmentsPage() {
       init[pa.userId] = { ...pa.assignments };
     }
     setAssignments(init);
+    setHiddenSides(new Set());
     setSaveSeason(stats.currentSeason);
   }, [stats]);
 
@@ -158,6 +163,15 @@ export default function AssignmentsPage() {
       ...prev,
       [userId]: { ...prev[userId], [targetKey]: value },
     }));
+  }
+
+  function toggleHiddenSide(miniKey) {
+    setHiddenSides(prev => {
+      const next = new Set(prev);
+      if (next.has(miniKey)) next.delete(miniKey);
+      else next.add(miniKey);
+      return next;
+    });
   }
 
   // ── Counts per target ────────────────────────────────────────────────────
@@ -223,7 +237,7 @@ export default function AssignmentsPage() {
         stats: stats || null,  // full stats object for immediate restore on load
         saveSeason,
       });
-      await saveAssignment(saveName.trim(), saveSeason, data);
+      await saveAssignment(saveName.trim(), saveSeason, data, [...hiddenSides]);
       showToast('Salvataggio effettuato con successo', 'success');
       await refreshSavedList();
     } catch (e) {
@@ -274,6 +288,16 @@ export default function AssignmentsPage() {
       } else {
         setStats(null);
       }
+
+      // Restore hidden sides from the dedicated table
+      try {
+        const hiddenRes = await loadHiddenSides(loadName);
+        if (hiddenRes.status === 'OK') setHiddenSides(new Set(hiddenRes.data || []));
+        else setHiddenSides(new Set());
+      } catch (_) {
+        setHiddenSides(new Set());
+      }
+
       showToast('Caricamento completato', 'success');
     } catch (e) {
       setLoadError('Errore nel caricamento: ' + (e.message || 'sconosciuto'));
@@ -591,6 +615,7 @@ export default function AssignmentsPage() {
                     <th className="assign-th assign-th--count">Cons.</th>
                     <th className="assign-th assign-th--count">Aff.</th>
                     <th className="assign-th assign-th--count">Scon.</th>
+                    <th className="assign-th assign-th--hide">Hide</th>
                     <th className="assign-th">Dettaglio</th>
                   </tr>
                 </thead>
@@ -618,6 +643,7 @@ export default function AssignmentsPage() {
                         <td className="assign-td assign-td--count assign-count--scon">
                           {countByType(bossKey, 'sconsigliato')}
                         </td>
+                        <td className="assign-td" />
                         <td className="assign-td">
                           <button
                             className="assign-detail-btn"
@@ -630,8 +656,9 @@ export default function AssignmentsPage() {
                       {/* Mini rows */}
                       {boss.minis.map(mini => {
                         const miniKey = `${bossKey}__${mini.unitId}`;
+                        const isHidden = hiddenSides.has(miniKey);
                         return (
-                          <tr key={miniKey} className="assign-tr assign-tr--mini">
+                          <tr key={miniKey} className={`assign-tr assign-tr--mini${isHidden ? ' assign-tr--hidden' : ''}`}>
                             <td className="assign-td assign-td--target assign-td--mini">
                               └ {mini.name}
                             </td>
@@ -644,6 +671,15 @@ export default function AssignmentsPage() {
                             </td>
                             <td className="assign-td assign-td--count assign-count--scon">
                               {countByType(miniKey, 'sconsigliato')}
+                            </td>
+                            <td className="assign-td assign-td--hide">
+                              <input
+                                type="checkbox"
+                                className="assign-hide-check"
+                                checked={isHidden}
+                                onChange={() => toggleHiddenSide(miniKey)}
+                                title="Nascondi nella dashboard"
+                              />
                             </td>
                             <td className="assign-td">
                               <button

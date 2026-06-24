@@ -436,6 +436,87 @@ export default function AssignmentsPage() {
         ws.getColumn(c).width = 18;
       }
 
+      // ── Per-boss detail sheets ───────────────────────────────────────────
+      // One sheet per boss with side-by-side Player/Media tables: one for the
+      // boss itself, plus one per side that has at least one "consigliato" player.
+      function sanitizeSheetName(name) {
+        let s = String(name).replace(/[:\\/?*[\]]/g, '').trim();
+        if (!s) s = 'Sheet';
+        return s.slice(0, 31);
+      }
+
+      const usedSheetNames = new Set([sheetName]);
+      function uniqueSheetName(base) {
+        let candidate = sanitizeSheetName(base);
+        let n = 2;
+        while (usedSheetNames.has(candidate)) {
+          const suffix = ` (${n})`;
+          candidate = sanitizeSheetName(base).slice(0, 31 - suffix.length) + suffix;
+          n++;
+        }
+        usedSheetNames.add(candidate);
+        return candidate;
+      }
+
+      // Writes a titled Player/Media table starting at startCol; returns the last column used.
+      function writeStatsTable(targetWs, startCol, title, guildAverage, playerStats) {
+        targetWs.mergeCells(1, startCol, 1, startCol + 1);
+        const titleCell = targetWs.getCell(1, startCol);
+        titleCell.value = `${title} — Media gilda: ${fmt(guildAverage)}`;
+        titleCell.font = { bold: true, color: { argb: 'FF00C8FF' }, size: 11 };
+        titleCell.fill = HEADER_BG;
+        titleCell.alignment = { horizontal: 'center', vertical: 'middle' };
+
+        const headerRow = targetWs.getRow(2);
+        headerRow.getCell(startCol).value = 'Player';
+        headerRow.getCell(startCol + 1).value = 'Media';
+        [startCol, startCol + 1].forEach(c => {
+          const cell = headerRow.getCell(c);
+          cell.font = { bold: true, color: { argb: 'FF00C8FF' }, size: 10 };
+          cell.fill = HEADER_BG;
+          cell.alignment = { horizontal: 'center', vertical: 'middle' };
+        });
+
+        const sorted = [...(playerStats || [])].sort((a, b) =>
+          b.average !== a.average
+            ? b.average - a.average
+            : a.playerName.localeCompare(b.playerName)
+        );
+
+        sorted.forEach((ps, idx) => {
+          const row = targetWs.getRow(3 + idx);
+          const nameCell = row.getCell(startCol);
+          const avgCell = row.getCell(startCol + 1);
+          nameCell.value = ps.playerName;
+          nameCell.font = { color: { argb: 'FFC8D8E8' }, size: 10 };
+          nameCell.fill = DARK_BG;
+          avgCell.value = ps.average;
+          avgCell.numFmt = '#,##0';
+          avgCell.font = { color: { argb: 'FFC8D8E8' }, size: 10 };
+          avgCell.fill = DARK_BG;
+          avgCell.alignment = { horizontal: 'center', vertical: 'middle' };
+        });
+
+        targetWs.getColumn(startCol).width = 22;
+        targetWs.getColumn(startCol + 1).width = 14;
+
+        return startCol + 1;
+      }
+
+      for (const b of stats.bosses) {
+        const bossKey = `${b.levelId}_${b.apiType}`;
+        const bws = workbook.addWorksheet(uniqueSheetName(`${b.levelDesc} ${b.bossDesc}`));
+
+        let nextCol = writeStatsTable(bws, 1, b.bossDesc, b.guildAverage, b.playerStats) + 2;
+
+        for (const m of b.minis) {
+          const miniKey = `${bossKey}__${m.unitId}`;
+          const hasConsigliato = Object.values(assignments).some(a => a[miniKey] === 'consigliato');
+          if (!hasConsigliato) continue;
+          nextCol = writeStatsTable(bws, nextCol, m.name, m.guildAverage, m.playerStats) + 2;
+        }
+      }
+
       // ── Download ──────────────────────────────────────────────────────────
       const buffer = await workbook.xlsx.writeBuffer();
       const blob = new Blob([buffer], {

@@ -87,6 +87,12 @@ export default function DashboardPage() {
               <span className="dash-bombs-value">{data.totalBombsUsed}</span>
             </div>
 
+            {(data.playerType === 'V' || data.playerType === 'R') && (
+              <div className={`dash-playertype-bar dash-playertype-bar--${data.playerType}`}>
+                {data.playerType === 'V' ? 'Vanguard' : 'Reaper'}
+              </div>
+            )}
+
             {data.bossGroups && data.bossGroups.length > 0
               ? data.bossGroups.map((group, i) => (
                   <BossGroupCard key={`${group.set}-${group.type}-${i}`} group={group} />
@@ -94,7 +100,8 @@ export default function DashboardPage() {
               : <p className="dash-status">Nessun dato disponibile per questa stagione.</p>
             }
 
-            {data.bossGroups && data.bossGroups.length > 0 && (
+            {data.bossGroups && data.bossGroups.length > 0
+              && data.playerType !== 'V' && data.playerType !== 'R' && (
               <div className="dash-legend">
                 <span className="dash-legend__title">LEGENDA ASSEGNAZIONI</span>
                 <div className="dash-legend__items">

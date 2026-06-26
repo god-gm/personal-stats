@@ -227,6 +227,11 @@
   border-color: rgba(239, 83, 80, 0.55);
   background: rgba(239, 83, 80, 0.1);
 }
+.enc-assign-badge--prioritario {
+  color: #ffffff;
+  border-color: rgba(76, 175, 80, 0.55);
+  background: rgba(76, 175, 80, 0.1);
+}
 
 /* ── Shared stat block ── */
 .stat-block { display: flex; flex-direction: column; gap: 0.1rem; }

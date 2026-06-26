@@ -10,6 +10,7 @@ const ASSIGNMENT_LABELS = {
   consigliato:  'Consigliato',
   affrontabile: 'Affrontabile',
   sconsigliato: 'Sconsigliato',
+  prioritario:  'Prioritario',
 };
 
 function AssignmentBadge({ type }) {

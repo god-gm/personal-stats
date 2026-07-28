@@ -58,7 +58,7 @@ function EncounterCard({ enc, isBoss, guildBest, isAdmin, rarity, onOpenAdminMod
         <div className="enc-card__header-content">
           <div className="enc-card__title-group">
             <span className={`enc-card__tag ${isBoss ? 'enc-card__tag--boss' : 'enc-card__tag--side'}`}>
-              {isBoss ? 'BOSS' : 'SIDE'}
+              {isBoss ? 'BOSS' : 'PRIME'}
             </span>
             <span className="enc-card__name-row">
               <span className="enc-card__name">{enc.name}</span>

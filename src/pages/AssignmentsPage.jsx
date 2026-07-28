@@ -1163,18 +1163,16 @@ function FilteredDetailPopup({ mode, filterKey, type, label, stats, assignments,
             {mode === 'target' ? (
               <>
                 <thead>
-                  <tr><th>Player</th><th>Media</th><th>Attacchi</th></tr>
+                  <tr><th>Player</th></tr>
                 </thead>
                 <tbody>
                   {playerRows.map(ps => (
                     <tr key={ps.userId} className={`detail-tr detail-tr--${type}`}>
                       <td className="detail-td">{ps.playerName}</td>
-                      <td className="detail-td">{(ps.average / 1000).toFixed(1)}K</td>
-                      <td className="detail-td">{ps.attackCount}</td>
                     </tr>
                   ))}
                   {playerRows.length === 0 && (
-                    <tr><td className="detail-td" colSpan={3}>Nessun player.</td></tr>
+                    <tr><td className="detail-td">Nessun player.</td></tr>
                   )}
                 </tbody>
               </>

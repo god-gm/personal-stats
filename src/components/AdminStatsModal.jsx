@@ -9,19 +9,16 @@ const CONFIGS = {
     title: 'TOKEN USAGE',
     fetcher: getTokenUsage,
     columns: [
-      { key: 'playerName',  label: 'Player' },
-      { key: 'discordName', label: 'Discord' },
-      { key: 'tokenCount',  label: 'Tokens', align: 'right' },
+      { key: 'playerName', label: 'Player' },
+      { key: 'tokenCount', label: 'Tokens', align: 'right' },
     ],
   },
   'guild-stats': {
     title: 'GUILD STATS',
     fetcher: getGuildStats,
     columns: [
-      { key: 'playerName',  label: 'Player' },
-      { key: 'discordName', label: 'Discord' },
-      { key: 'average',     label: 'Average', align: 'right', format: fmt },
-      { key: 'attackCount', label: 'Attacks', align: 'right' },
+      { key: 'playerName', label: 'Player' },
+      { key: 'average',    label: 'Average', align: 'right', format: fmt },
     ],
   },
 };

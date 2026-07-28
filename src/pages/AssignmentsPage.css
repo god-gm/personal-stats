@@ -68,6 +68,35 @@
 }
 .assign-section__title--mt { margin-top: 2rem; }
 
+/* ── Player section title row (title + add button) ───────────────────────── */
+.assign-section__title-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  margin-bottom: 0;
+}
+.assign-section__title-row .assign-section__title--mt {
+  margin-top: 0;
+}
+
+.assign-add-player-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #00c8ff;
+  background: transparent;
+  border: 1px solid #00c8ff;
+  padding: 0.2rem 0.6rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.assign-add-player-btn:hover {
+  background: rgba(0, 200, 255, 0.12);
+}
+
 /* ── Config grid ────────────────────────────────────────────────────────── */
 .assign-config-grid {
   display: grid;
@@ -431,6 +460,33 @@
 
 /* ── Player detail modal width ───────────────────────────────────────────── */
 .detail-modal--player { max-width: 480px; }
+
+/* ── Add player modal ────────────────────────────────────────────────────── */
+.detail-modal--add-player { max-width: 420px; }
+
+.add-player-empty {
+  padding: 1.5rem;
+  text-align: center;
+  color: #7090a8;
+  font-size: 0.85rem;
+}
+
+.detail-td--action { text-align: right; white-space: nowrap; }
+
+.assign-add-confirm-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0a0f1a;
+  background: #00c8ff;
+  border: none;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.assign-add-confirm-btn:hover { background: #33d4ff; }
 
 .detail-td--boss {
   font-weight: 600;

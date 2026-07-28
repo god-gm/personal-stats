@@ -9,6 +9,7 @@ import {
   loadAssignment,
   loadHiddenSides,
   checkAssignmentExists,
+  getEnabledPlayers,
 } from '../api/client';
 import ScifiSpinner from '../components/ScifiSpinner';
 import './AssignmentsPage.css';
@@ -80,6 +81,14 @@ export default function AssignmentsPage() {
 
   // Ref to skip the assignments-init effect when loading from saved data
   const skipAssignmentInitRef = useRef(false);
+
+  // Extra players added manually (not in the compute response)
+  const [extraPlayers, setExtraPlayers] = useState([]);
+
+  // Add-player modal
+  const [showAddPlayerModal, setShowAddPlayerModal] = useState(false);
+  const [availablePlayers, setAvailablePlayers] = useState([]);
+  const [loadingPlayers, setLoadingPlayers] = useState(false);
 
   // ── Load anag on mount ──────────────────────────────────────────────────
   useEffect(() => {
@@ -563,14 +572,38 @@ export default function AssignmentsPage() {
   }
   function closeFilterDetail() { setFilterDetail(null); }
 
+  // ── Add player modal ─────────────────────────────────────────────────────
+  async function openAddPlayerModal() {
+    setLoadingPlayers(true);
+    setShowAddPlayerModal(true);
+    setAvailablePlayers([]);
+    try {
+      const res = await getEnabledPlayers();
+      const existingIds = new Set(Object.keys(assignments));
+      setAvailablePlayers((res.data || []).filter(p => !existingIds.has(p.userId)));
+    } catch {
+      setAvailablePlayers([]);
+    } finally {
+      setLoadingPlayers(false);
+    }
+  }
+
+  function handleAddPlayer(player) {
+    const newAssignments = {};
+    for (const { key } of targetKeys) {
+      newAssignments[key] = 'sconsigliato';
+    }
+    setAssignments(prev => ({ ...prev, [player.userId]: newAssignments }));
+    setExtraPlayers(prev => [...prev, { userId: player.userId, playerName: player.userGameName }]);
+    setShowAddPlayerModal(false);
+  }
+
   // ── Render ───────────────────────────────────────────────────────────────
   const targetKeys = allTargetKeys();
-  const allPlayers = stats
-    ? stats.playerAssignments.map(pa => ({
-        userId: pa.userId,
-        playerName: pa.playerName,
-      }))
-    : [];
+  const allPlayers = [
+    ...(stats ? stats.playerAssignments.map(pa => ({ userId: pa.userId, playerName: pa.playerName })) : []),
+    ...extraPlayers,
+  ];
 
   return (
     <div className="assign-wrapper">
@@ -797,9 +830,14 @@ export default function AssignmentsPage() {
             </div>
 
             {/* ── Section 4: Player summary table ─────────────────────── */}
-            <h2 className="assign-section__title assign-section__title--mt">
-              RIEPILOGO PLAYER
-            </h2>
+            <div className="assign-section__title-row">
+              <h2 className="assign-section__title assign-section__title--mt">
+                RIEPILOGO PLAYER
+              </h2>
+              <button className="assign-add-player-btn" onClick={openAddPlayerModal}>
+                + Aggiungi
+              </button>
+            </div>
             <div className="assign-table-wrap">
               <table className="assign-table">
                 <thead>
@@ -926,6 +964,16 @@ export default function AssignmentsPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── Add player modal ───────────────────────────────────────────────── */}
+      {showAddPlayerModal && (
+        <AddPlayerModal
+          players={availablePlayers}
+          loading={loadingPlayers}
+          onAdd={handleAddPlayer}
+          onClose={() => setShowAddPlayerModal(false)}
+        />
       )}
 
       {/* ── Loading spinner ─────────────────────────────────────────────────── */}
@@ -1194,6 +1242,49 @@ function FilteredDetailPopup({ mode, filterKey, type, label, stats, assignments,
               </>
             )}
           </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Add player modal ──────────────────────────────────────────────────────────
+
+function AddPlayerModal({ players, loading, onAdd, onClose }) {
+  return (
+    <div className="detail-overlay" onClick={onClose}>
+      <div className="detail-modal detail-modal--add-player" onClick={e => e.stopPropagation()}>
+        <div className="detail-modal__header">
+          <span className="detail-modal__title">Aggiungi Player</span>
+          <button className="detail-modal__close" onClick={onClose}>✕</button>
+        </div>
+        <div className="detail-table-wrap">
+          {loading ? (
+            <p className="add-player-empty">Caricamento...</p>
+          ) : players.length === 0 ? (
+            <p className="add-player-empty">Nessun player disponibile da aggiungere.</p>
+          ) : (
+            <table className="detail-table">
+              <thead>
+                <tr>
+                  <th>Player</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                {players.map(p => (
+                  <tr key={p.userId} className="detail-tr">
+                    <td className="detail-td">{p.userGameName}</td>
+                    <td className="detail-td detail-td--action">
+                      <button className="assign-add-confirm-btn" onClick={() => onAdd(p)}>
+                        Conferma
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>

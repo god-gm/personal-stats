@@ -62,6 +62,10 @@ export async function getTargetAttacks(unitId, rarity) {
   return request(`/api/admin/target-attacks?unitId=${encodeURIComponent(unitId)}&rarity=${encodeURIComponent(rarity)}`);
 }
 
+export async function getEnabledPlayers() {
+  return request('/api/player/list');
+}
+
 // ── Anag ────────────────────────────────────────────────────────────────────
 
 export async function getLevels() {

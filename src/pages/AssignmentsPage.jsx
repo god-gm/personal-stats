@@ -57,6 +57,8 @@ export default function AssignmentsPage() {
   const [detailTarget, setDetailTarget] = useState(null);
   // Player detail popup (player-centric view)
   const [playerDetailTarget, setPlayerDetailTarget] = useState(null);
+  // Filtered popup (only players of one assignment type on a target, or only targets of one type for a player)
+  const [filterDetail, setFilterDetail] = useState(null);
 
   // Save / Load
   const [savedList, setSavedList] = useState([]);
@@ -553,6 +555,14 @@ export default function AssignmentsPage() {
   }
   function closePlayerDetail() { setPlayerDetailTarget(null); }
 
+  function openTargetFilter(targetKey, type, label) {
+    setFilterDetail({ mode: 'target', key: targetKey, type, label });
+  }
+  function openPlayerFilter(userId, type, playerName) {
+    setFilterDetail({ mode: 'player', key: userId, type, label: playerName });
+  }
+  function closeFilterDetail() { setFilterDetail(null); }
+
   // ── Render ───────────────────────────────────────────────────────────────
   const targetKeys = allTargetKeys();
   const allPlayers = stats
@@ -717,12 +727,15 @@ export default function AssignmentsPage() {
                         <td className="assign-td assign-td--guild">{fmt(boss.guildAverage)}</td>
                         <td className="assign-td assign-td--count assign-count--cons">
                           {countByType(bossKey, 'consigliato')}
+                          <button className="assign-lens-btn" title="Mostra player" onClick={() => openTargetFilter(bossKey, 'consigliato', boss.bossDesc)}>🔍</button>
                         </td>
                         <td className="assign-td assign-td--count assign-count--aff">
                           {countByType(bossKey, 'affrontabile')}
+                          <button className="assign-lens-btn" title="Mostra player" onClick={() => openTargetFilter(bossKey, 'affrontabile', boss.bossDesc)}>🔍</button>
                         </td>
                         <td className="assign-td assign-td--count assign-count--scon">
                           {countByType(bossKey, 'sconsigliato')}
+                          <button className="assign-lens-btn" title="Mostra player" onClick={() => openTargetFilter(bossKey, 'sconsigliato', boss.bossDesc)}>🔍</button>
                         </td>
                         <td className="assign-td" />
                         <td className="assign-td">
@@ -746,12 +759,15 @@ export default function AssignmentsPage() {
                             <td className="assign-td assign-td--guild">{fmt(mini.guildAverage)}</td>
                             <td className="assign-td assign-td--count assign-count--cons">
                               {countByType(miniKey, 'consigliato')}
+                              <button className="assign-lens-btn" title="Mostra player" onClick={() => openTargetFilter(miniKey, 'consigliato', `${boss.bossDesc} → ${mini.name}`)}>🔍</button>
                             </td>
                             <td className="assign-td assign-td--count assign-count--aff">
                               {countByType(miniKey, 'affrontabile')}
+                              <button className="assign-lens-btn" title="Mostra player" onClick={() => openTargetFilter(miniKey, 'affrontabile', `${boss.bossDesc} → ${mini.name}`)}>🔍</button>
                             </td>
                             <td className="assign-td assign-td--count assign-count--scon">
                               {countByType(miniKey, 'sconsigliato')}
+                              <button className="assign-lens-btn" title="Mostra player" onClick={() => openTargetFilter(miniKey, 'sconsigliato', `${boss.bossDesc} → ${mini.name}`)}>🔍</button>
                             </td>
                             <td className="assign-td assign-td--hide">
                               <input
@@ -801,9 +817,18 @@ export default function AssignmentsPage() {
                     return (
                       <tr key={p.userId} className="assign-tr">
                         <td className="assign-td assign-td--player">{p.playerName}</td>
-                        <td className="assign-td assign-td--count assign-count--cons">{c}</td>
-                        <td className="assign-td assign-td--count assign-count--aff">{a}</td>
-                        <td className="assign-td assign-td--count assign-count--scon">{s}</td>
+                        <td className="assign-td assign-td--count assign-count--cons">
+                          {c}
+                          <button className="assign-lens-btn" title="Mostra boss" onClick={() => openPlayerFilter(p.userId, 'consigliato', p.playerName)}>🔍</button>
+                        </td>
+                        <td className="assign-td assign-td--count assign-count--aff">
+                          {a}
+                          <button className="assign-lens-btn" title="Mostra boss" onClick={() => openPlayerFilter(p.userId, 'affrontabile', p.playerName)}>🔍</button>
+                        </td>
+                        <td className="assign-td assign-td--count assign-count--scon">
+                          {s}
+                          <button className="assign-lens-btn" title="Mostra boss" onClick={() => openPlayerFilter(p.userId, 'sconsigliato', p.playerName)}>🔍</button>
+                        </td>
                         <td className="assign-td">
                           <button
                             className="assign-detail-btn"
@@ -853,6 +878,19 @@ export default function AssignmentsPage() {
           assignments={assignments}
           setPlayerAssignment={setPlayerAssignment}
           onClose={closePlayerDetail}
+        />
+      )}
+
+      {/* ── Filtered detail popup (by assignment type) ───────────────────────── */}
+      {filterDetail && (
+        <FilteredDetailPopup
+          mode={filterDetail.mode}
+          filterKey={filterDetail.key}
+          type={filterDetail.type}
+          label={filterDetail.label}
+          stats={stats}
+          assignments={assignments}
+          onClose={closeFilterDetail}
         />
       )}
 
@@ -1059,6 +1097,104 @@ function PlayerDetailPopup({ userId, playerName, stats, assignments, setPlayerAs
                 );
               })}
             </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Filtered detail popup (only entries matching one assignment type) ─────────
+
+function targetKeysOf(stats) {
+  if (!stats) return [];
+  const keys = [];
+  for (const b of stats.bosses) {
+    const bossKey = `${b.levelId}_${b.apiType}`;
+    keys.push({ key: bossKey, label: b.bossDesc });
+    for (const m of b.minis) {
+      keys.push({ key: `${bossKey}__${m.unitId}`, label: `${b.bossDesc} → ${m.name}` });
+    }
+  }
+  return keys;
+}
+
+function FilteredDetailPopup({ mode, filterKey, type, label, stats, assignments, onClose }) {
+  const title = `${label} — ${ASSIGNMENT_LABELS[type]}`;
+
+  let playerRows = [];
+  let targetRows = [];
+
+  if (mode === 'target') {
+    const isMini = filterKey.includes('__');
+    let levelId, apiType, miniUnitId;
+    if (isMini) {
+      const [bossWithLevel, mUnitId] = filterKey.split('__');
+      const sepIdx = bossWithLevel.indexOf('_');
+      levelId = parseInt(bossWithLevel.substring(0, sepIdx));
+      apiType = bossWithLevel.substring(sepIdx + 1);
+      miniUnitId = mUnitId;
+    } else {
+      const sepIdx = filterKey.indexOf('_');
+      levelId = parseInt(filterKey.substring(0, sepIdx));
+      apiType = filterKey.substring(sepIdx + 1);
+    }
+    const bossData = stats.bosses.find(b => b.apiType === apiType && b.levelId === levelId);
+    const miniData = isMini && bossData ? bossData.minis.find(m => m.unitId === miniUnitId) : null;
+    const rawPlayerStats = (miniData ? miniData.playerStats : bossData?.playerStats) || [];
+    playerRows = rawPlayerStats
+      .filter(ps => (assignments[ps.userId]?.[filterKey] || 'sconsigliato') === type)
+      .sort((a, b) => a.playerName.localeCompare(b.playerName));
+  } else {
+    targetRows = targetKeysOf(stats)
+      .filter(t => (assignments[filterKey]?.[t.key] || 'sconsigliato') === type);
+  }
+
+  return (
+    <div className="detail-overlay" onClick={onClose}>
+      <div className="detail-modal" onClick={e => e.stopPropagation()}>
+        <div className="detail-modal__header">
+          <span className="detail-modal__title">{title}</span>
+          <button className="detail-modal__close" onClick={onClose}>✕</button>
+        </div>
+
+        <div className="detail-table-wrap">
+          <table className="detail-table">
+            {mode === 'target' ? (
+              <>
+                <thead>
+                  <tr><th>Player</th><th>Media</th><th>Attacchi</th></tr>
+                </thead>
+                <tbody>
+                  {playerRows.map(ps => (
+                    <tr key={ps.userId} className={`detail-tr detail-tr--${type}`}>
+                      <td className="detail-td">{ps.playerName}</td>
+                      <td className="detail-td">{(ps.average / 1000).toFixed(1)}K</td>
+                      <td className="detail-td">{ps.attackCount}</td>
+                    </tr>
+                  ))}
+                  {playerRows.length === 0 && (
+                    <tr><td className="detail-td" colSpan={3}>Nessun player.</td></tr>
+                  )}
+                </tbody>
+              </>
+            ) : (
+              <>
+                <thead>
+                  <tr><th>Boss / Mini</th></tr>
+                </thead>
+                <tbody>
+                  {targetRows.map(t => (
+                    <tr key={t.key} className={`detail-tr detail-tr--${type}`}>
+                      <td className="detail-td">{t.label}</td>
+                    </tr>
+                  ))}
+                  {targetRows.length === 0 && (
+                    <tr><td className="detail-td">Nessun boss/mini.</td></tr>
+                  )}
+                </tbody>
+              </>
+            )}
           </table>
         </div>
       </div>

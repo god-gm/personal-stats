@@ -176,6 +176,47 @@
   border: 1px solid rgba(239, 83, 80, 0.3);
 }
 
+/* ── Admin panel ── */
+.dash-admin-panel {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: rgba(255, 160, 64, 0.04);
+  border: 1px solid rgba(255, 160, 64, 0.18);
+  padding: 0.55rem 1rem;
+  margin-bottom: 1.5rem;
+  clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  flex-wrap: wrap;
+}
+
+.dash-admin-panel__title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #ffa040;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+}
+
+.dash-admin-panel__actions {
+  display: flex;
+  gap: 0.6rem;
+}
+
+.dash-admin-panel__btn {
+  background: transparent;
+  border: 1px solid rgba(255, 160, 64, 0.35);
+  color: #ffa040;
+  cursor: pointer;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  padding: 0.35rem 0.75rem;
+  clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
+  transition: color 0.2s, border-color 0.2s;
+}
+.dash-admin-panel__btn:hover { color: #ffcc88; border-color: rgba(255, 160, 64, 0.7); }
+
 /* Status / Error */
 .dash-status { color: #2a5068; font-family: 'Orbitron', sans-serif; font-size: 0.7rem; text-align: center; margin-top: 4rem; letter-spacing: 0.1em; }
 .dash-error  { color: #ff4444; font-family: 'Rajdhani', sans-serif; font-size: 0.95rem; text-align: center; margin-top: 3rem; }

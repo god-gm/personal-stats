@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getCurrentSeason, getPlayerInfo } from '../api/client';
+import { getCurrentSeason, getPlayerInfo, getCurrentSeasonGuildBest } from '../api/client';
 import BossGroupCard from '../components/BossGroupCard';
 import PlayerInfoPanel from '../components/PlayerInfoPanel';
+import AdminStatsModal from '../components/AdminStatsModal';
 import './DashboardPage.css';
 
 export default function DashboardPage() {
   const [data, setData] = useState(null);
+  const [guildBest, setGuildBest] = useState({});
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
   const [playerInfo, setPlayerInfo] = useState(null);
   const [displayName, setDisplayName] = useState(localStorage.getItem('user_game_name') || '');
+  const [activeAdminModal, setActiveAdminModal] = useState(null); // 'token-usage' | 'guild-stats' | null
   const navigate = useNavigate();
   const isAdmin = localStorage.getItem('user_role') === 'ADMIN';
 
@@ -23,11 +26,11 @@ export default function DashboardPage() {
     const seasonPromise = getCurrentSeason()
       .then((res) => {
         if (res.status === 'OK') setData(res.data);
-        else setError(res.message || 'Errore nel caricamento dati.');
+        else setError(res.message || 'Error loading data.');
       })
       .catch((err) => {
         if (err.status === 401) navigate('/');
-        else setError(err.message || 'Errore di rete.');
+        else setError(err.message || 'Network error.');
       });
 
     const playerPromise = getPlayerInfo()
@@ -39,7 +42,13 @@ export default function DashboardPage() {
       })
       .catch(() => {});
 
-    Promise.all([seasonPromise, playerPromise]).finally(() => setLoading(false));
+    const guildBestPromise = getCurrentSeasonGuildBest()
+      .then((res) => {
+        if (res.status === 'OK' && res.data) setGuildBest(res.data);
+      })
+      .catch(() => {});
+
+    Promise.all([seasonPromise, playerPromise, guildBestPromise]).finally(() => setLoading(false));
   }, [navigate]);
 
   function handleLogout() {
@@ -71,7 +80,7 @@ export default function DashboardPage() {
       </header>
 
       <main className="dash-main">
-        {loading && <p className="dash-status">Caricamento dati stagione corrente…</p>}
+        {loading && <p className="dash-status">Loading current season data…</p>}
         {error && <p className="dash-error">{error}</p>}
 
         {data && (
@@ -79,11 +88,11 @@ export default function DashboardPage() {
             {playerInfo && <PlayerInfoPanel info={playerInfo} />}
 
             <div className="dash-season-bar">
-              <span className="dash-season-label">Stagione</span>
+              <span className="dash-season-label">Season</span>
               <span className="dash-season-value">{data.season}</span>
-              <span className="dash-tokens-label">Token usati:</span>
+              <span className="dash-tokens-label">Tokens used:</span>
               <span className="dash-tokens-value">{data.totalTokensUsed}</span>
-              <span className="dash-bombs-label">Bombe usate:</span>
+              <span className="dash-bombs-label">Bombs used:</span>
               <span className="dash-bombs-value">{data.totalBombsUsed}</span>
             </div>
 
@@ -93,29 +102,49 @@ export default function DashboardPage() {
               </div>
             )}
 
+            {isAdmin && (
+              <div className="dash-admin-panel">
+                <span className="dash-admin-panel__title">ADMIN PANEL</span>
+                <div className="dash-admin-panel__actions">
+                  <button
+                    className="dash-admin-panel__btn"
+                    onClick={() => setActiveAdminModal('token-usage')}
+                  >
+                    TOKEN USAGE
+                  </button>
+                  <button
+                    className="dash-admin-panel__btn"
+                    onClick={() => setActiveAdminModal('guild-stats')}
+                  >
+                    GUILD STATS
+                  </button>
+                </div>
+              </div>
+            )}
+
             {data.bossGroups && data.bossGroups.length > 0
               ? data.bossGroups.map((group, i) => (
-                  <BossGroupCard key={`${group.set}-${group.type}-${i}`} group={group} />
+                  <BossGroupCard key={`${group.set}-${group.type}-${i}`} group={group} guildBest={guildBest} />
                 ))
-              : <p className="dash-status">Nessun dato disponibile per questa stagione.</p>
+              : <p className="dash-status">No data available for this season.</p>
             }
 
             {data.bossGroups && data.bossGroups.length > 0
               && data.playerType !== 'V' && data.playerType !== 'R' && (
               <div className="dash-legend">
-                <span className="dash-legend__title">LEGENDA ASSEGNAZIONI</span>
+                <span className="dash-legend__title">ASSIGNMENT LEGEND</span>
                 <div className="dash-legend__items">
                   <div className="dash-legend__item">
-                    <span className="dash-legend__badge dash-legend__badge--consigliato">Consigliato</span>
-                    <span className="dash-legend__desc">2/3 Token</span>
+                    <span className="dash-legend__badge dash-legend__badge--consigliato">Recommended</span>
+                    <span className="dash-legend__desc">2/3 Tokens</span>
                   </div>
                   <div className="dash-legend__item">
-                    <span className="dash-legend__badge dash-legend__badge--affrontabile">Affrontabile</span>
+                    <span className="dash-legend__badge dash-legend__badge--affrontabile">Engageable</span>
                     <span className="dash-legend__desc">1 Token</span>
                   </div>
                   <div className="dash-legend__item">
-                    <span className="dash-legend__badge dash-legend__badge--sconsigliato">Sconsigliato</span>
-                    <span className="dash-legend__desc">0 Token (solo per non andare full)</span>
+                    <span className="dash-legend__badge dash-legend__badge--sconsigliato">Not Recommended</span>
+                    <span className="dash-legend__desc">0 Tokens (only to avoid going full)</span>
                   </div>
                 </div>
               </div>
@@ -123,6 +152,13 @@ export default function DashboardPage() {
           </>
         )}
       </main>
+
+      {activeAdminModal === 'token-usage' && (
+        <AdminStatsModal kind="token-usage" onClose={() => setActiveAdminModal(null)} />
+      )}
+      {activeAdminModal === 'guild-stats' && (
+        <AdminStatsModal kind="guild-stats" onClose={() => setActiveAdminModal(null)} />
+      )}
     </div>
   );
 }

@@ -7,10 +7,10 @@ const CDN = 'https://cdn.ezekiel.snowprintstudios.com';
 const fmt = (n) => (n != null ? n.toLocaleString('it-IT') : '—');
 
 const ASSIGNMENT_LABELS = {
-  consigliato:  'Consigliato',
-  affrontabile: 'Affrontabile',
-  sconsigliato: 'Sconsigliato',
-  prioritario:  'Prioritario',
+  consigliato:  'Recommended',
+  affrontabile: 'Engageable',
+  sconsigliato: 'Not Recommended',
+  prioritario:  'Priority',
 };
 
 function AssignmentBadge({ type }) {
@@ -33,7 +33,7 @@ function StatBlock({ label, value, accent }) {
   );
 }
 
-function EncounterCard({ enc, isBoss }) {
+function EncounterCard({ enc, isBoss, guildBest }) {
   return (
     <div className={`enc-card ${isBoss ? 'enc-card--boss' : 'enc-card--side'}`}>
       <div className="enc-card__header">
@@ -57,16 +57,17 @@ function EncounterCard({ enc, isBoss }) {
         </div>
       </div>
       <div className="enc-card__stats">
-        <StatBlock label="ATTACCHI"         value={enc.playerAttackCount} />
-        <StatBlock label="MEDIA PERSONALE"  value={fmt(enc.playerAverage || null)} accent />
-        <StatBlock label="TOP RUN PERS."    value={fmt(enc.playerBest || null)} />
-        <StatBlock label="MEDIA GILDA"      value={fmt(enc.guildAverage || null)} />
+        <StatBlock label="ATTACKS"          value={enc.playerAttackCount} />
+        <StatBlock label="PERSONAL AVERAGE" value={fmt(enc.playerAverage || null)} accent />
+        <StatBlock label="PERSONAL BEST"    value={fmt(enc.playerBest || null)} />
+        <StatBlock label="GUILD AVERAGE"    value={fmt(enc.guildAverage || null)} />
+        <StatBlock label="GUILD BEST"       value={fmt(guildBest?.[enc.unitId] || null)} />
       </div>
     </div>
   );
 }
 
-export default function BossGroupCard({ group }) {
+export default function BossGroupCard({ group, guildBest }) {
   const [expanded, setExpanded] = useState(true);
   const { label, bossName, encounters } = group;
 
@@ -85,9 +86,9 @@ export default function BossGroupCard({ group }) {
 
       {expanded && (
         <div className="bgc__body">
-          {boss && <EncounterCard enc={boss} isBoss={true} />}
+          {boss && <EncounterCard enc={boss} isBoss={true} guildBest={guildBest} />}
           {sides.map((enc) => (
-            <EncounterCard key={enc.unitId} enc={enc} isBoss={false} />
+            <EncounterCard key={enc.unitId} enc={enc} isBoss={false} guildBest={guildBest} />
           ))}
         </div>
       )}

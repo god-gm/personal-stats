@@ -2,9 +2,9 @@ import React from 'react';
 import './PerformanceIndicator.css';
 
 const CONFIG = {
-  above:   { symbol: '▲', label: 'SOPRA MEDIA', cls: 'perf-above' },
-  average: { symbol: '▬', label: 'IN MEDIA',    cls: 'perf-average' },
-  below:   { symbol: '▼', label: 'SOTTO MEDIA', cls: 'perf-below' },
+  above:   { symbol: '▲', label: 'ABOVE AVERAGE', cls: 'perf-above' },
+  average: { symbol: '▬', label: 'AT AVERAGE',    cls: 'perf-average' },
+  below:   { symbol: '▼', label: 'BELOW AVERAGE', cls: 'perf-below' },
 };
 
 export default function PerformanceIndicator({ value }) {

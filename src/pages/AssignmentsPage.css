@@ -269,6 +269,20 @@
   margin-left: 0.4rem;
 }
 
+.assign-lens-btn {
+  background: transparent;
+  border: none;
+  color: #2a5068;
+  cursor: pointer;
+  font-size: 0.65rem;
+  margin-left: 0.35rem;
+  padding: 0;
+  vertical-align: middle;
+  transition: opacity 0.2s;
+  opacity: 0.65;
+}
+.assign-lens-btn:hover { opacity: 1; }
+
 .assign-detail-btn {
   background: transparent;
   border: 1px solid rgba(0, 200, 255, 0.2);

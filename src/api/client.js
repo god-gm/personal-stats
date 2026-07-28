@@ -36,8 +36,22 @@ export async function getCurrentSeason() {
   return request('/api/raid/current-season');
 }
 
+export async function getCurrentSeasonGuildBest() {
+  return request('/api/raid/current-season/guild-best');
+}
+
 export async function getPlayerInfo() {
   return request('/api/player/info');
+}
+
+// ── Admin ───────────────────────────────────────────────────────────────────
+
+export async function getTokenUsage() {
+  return request('/api/admin/token-usage');
+}
+
+export async function getGuildStats() {
+  return request('/api/admin/guild-stats');
 }
 
 // ── Anag ────────────────────────────────────────────────────────────────────

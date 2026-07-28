@@ -6,11 +6,11 @@ export default function PlayerInfoPanel({ info }) {
     <div className="pip">
       <div className="pip__block">
         <span className="pip__icon">⚡</span>
-        <span className="pip__label">Token raid</span>
+        <span className="pip__label">Raid Token</span>
         <span className="pip__value">{info.tokensCurrent} / {info.tokensMax}</span>
         {info.tokensNextAt
-          ? <span className="pip__sub">Prossimo: {info.tokensNextAt}</span>
-          : <span className="pip__sub pip__sub--ready">Slot pieno</span>
+          ? <span className="pip__sub">Next: {info.tokensNextAt}</span>
+          : <span className="pip__sub pip__sub--ready">Slot full</span>
         }
       </div>
 
@@ -18,12 +18,12 @@ export default function PlayerInfoPanel({ info }) {
 
       <div className="pip__block">
         <span className="pip__icon">💣</span>
-        <span className="pip__label">Bomba</span>
+        <span className="pip__label">Bomb</span>
         {info.bombAvailable
-          ? <span className="pip__value pip__value--ready">Disponibile</span>
+          ? <span className="pip__value pip__value--ready">Available</span>
           : <>
-              <span className="pip__value pip__value--used">Non disponibile</span>
-              {info.bombNextAt && <span className="pip__sub">Prossima: {info.bombNextAt}</span>}
+              <span className="pip__value pip__value--used">Not available</span>
+              {info.bombNextAt && <span className="pip__sub">Next: {info.bombNextAt}</span>}
             </>
         }
       </div>

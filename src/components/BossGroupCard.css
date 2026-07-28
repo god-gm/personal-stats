@@ -190,10 +190,10 @@
   min-height: 1.5rem;
 }
 
-/* ── Stats: fixed 2×2 grid — always symmetric ── */
+/* ── Stats: 3-column grid (5 blocks → wraps to 2 rows) ── */
 .enc-card__stats {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
   gap: 0.55rem 1rem;
   margin-top: auto;
   padding-top: 0.5rem;

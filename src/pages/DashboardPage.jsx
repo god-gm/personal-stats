@@ -124,7 +124,7 @@ export default function DashboardPage() {
 
             {data.bossGroups && data.bossGroups.length > 0
               ? data.bossGroups.map((group, i) => (
-                  <BossGroupCard key={`${group.set}-${group.type}-${i}`} group={group} guildBest={guildBest} />
+                  <BossGroupCard key={`${group.set}-${group.type}-${i}`} group={group} guildBest={guildBest} isAdmin={isAdmin} />
                 ))
               : <p className="dash-status">No data available for this season.</p>
             }

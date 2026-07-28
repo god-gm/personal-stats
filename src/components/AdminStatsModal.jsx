@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { getTokenUsage, getGuildStats } from '../api/client';
 import './AdminStatsModal.css';
 
-const fmt = (n) => (n != null ? n.toLocaleString('en-US') : '—');
+export const fmt = (n) => (n != null ? n.toLocaleString('en-US') : '—');
 
 const CONFIGS = {
   'token-usage': {
@@ -23,12 +23,17 @@ const CONFIGS = {
   },
 };
 
-export default function AdminStatsModal({ kind, onClose }) {
-  const cfg = CONFIGS[kind];
+// Pass either `kind` (one of the fixed CONFIGS above) or a direct
+// `title`/`columns`/`fetcher` triple for one-off, dynamically-parameterized modals
+// (e.g. a specific boss/mini target on the dashboard).
+export default function AdminStatsModal({ kind, title, columns, fetcher, onClose }) {
+  const cfg = kind ? CONFIGS[kind] : { title, columns, fetcher };
   const [rows, setRows] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
 
+  // Runs once on mount: the modal is always freshly mounted per "open" action
+  // (conditionally rendered by the parent), so there's no need to react to prop changes.
   useEffect(() => {
     let cancelled = false;
     cfg.fetcher()
@@ -40,7 +45,8 @@ export default function AdminStatsModal({ kind, onClose }) {
       .catch((err) => { if (!cancelled) setError(err.message || 'Network error.'); })
       .finally(() => { if (!cancelled) setLoading(false); });
     return () => { cancelled = true; };
-  }, [cfg]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="asm-overlay" onClick={onClose}>

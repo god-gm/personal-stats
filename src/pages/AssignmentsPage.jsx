@@ -603,7 +603,7 @@ export default function AssignmentsPage() {
   const allPlayers = [
     ...(stats ? stats.playerAssignments.map(pa => ({ userId: pa.userId, playerName: pa.playerName })) : []),
     ...extraPlayers,
-  ];
+  ].sort((a, b) => a.playerName.localeCompare(b.playerName));
 
   return (
     <div className="assign-wrapper">
@@ -902,6 +902,7 @@ export default function AssignmentsPage() {
           label={detailTarget.label}
           stats={stats}
           assignments={assignments}
+          extraPlayers={extraPlayers}
           setPlayerAssignment={setPlayerAssignment}
           onClose={closeDetail}
         />
@@ -928,6 +929,7 @@ export default function AssignmentsPage() {
           label={filterDetail.label}
           stats={stats}
           assignments={assignments}
+          extraPlayers={extraPlayers}
           onClose={closeFilterDetail}
         />
       )}
@@ -1000,7 +1002,7 @@ function AssignBadge({ value }) {
 
 // ── Detail popup component ────────────────────────────────────────────────────
 
-function DetailPopup({ targetKey, label, stats, assignments, setPlayerAssignment, onClose }) {
+function DetailPopup({ targetKey, label, stats, assignments, extraPlayers = [], setPlayerAssignment, onClose }) {
   const isMini = targetKey.includes('__');
   let levelId, apiType, miniUnitId;
   if (isMini) {
@@ -1018,7 +1020,11 @@ function DetailPopup({ targetKey, label, stats, assignments, setPlayerAssignment
   const bossData = stats.bosses.find(b => b.apiType === apiType && b.levelId === levelId);
   const miniData = isMini && bossData ? bossData.minis.find(m => m.unitId === miniUnitId) : null;
   const rawPlayerStats = (miniData ? miniData.playerStats : bossData?.playerStats) || [];
-  const playerStats = [...rawPlayerStats].sort((a, b) => a.playerName.localeCompare(b.playerName));
+  const knownIds = new Set(rawPlayerStats.map(ps => ps.userId));
+  const extraRows = extraPlayers
+    .filter(p => !knownIds.has(p.userId))
+    .map(p => ({ userId: p.userId, playerName: p.playerName, average: null, delta: null, attackCount: null }));
+  const playerStats = [...rawPlayerStats, ...extraRows].sort((a, b) => a.playerName.localeCompare(b.playerName));
   const guildAvg = miniData ? miniData.guildAverage : (bossData ? bossData.guildAverage : 0);
 
   return (
@@ -1045,14 +1051,15 @@ function DetailPopup({ targetKey, label, stats, assignments, setPlayerAssignment
             <tbody>
               {playerStats.map(ps => {
                 const current = assignments[ps.userId]?.[targetKey] || 'sconsigliato';
+                const hasStats = ps.average !== null;
                 return (
                   <tr key={ps.userId} className={`detail-tr detail-tr--${current}`}>
                     <td className="detail-td">{ps.playerName}</td>
-                    <td className="detail-td">{(ps.average / 1000).toFixed(1)}K</td>
-                    <td className={`detail-td detail-delta${ps.delta >= 0 ? '--pos' : '--neg'}`}>
-                      {ps.delta >= 0 ? '+' : ''}{(ps.delta / 1000).toFixed(1)}K
+                    <td className="detail-td">{hasStats ? (ps.average / 1000).toFixed(1) + 'K' : '—'}</td>
+                    <td className={`detail-td ${hasStats ? `detail-delta${ps.delta >= 0 ? '--pos' : '--neg'}` : ''}`}>
+                      {hasStats ? `${ps.delta >= 0 ? '+' : ''}${(ps.delta / 1000).toFixed(1)}K` : '—'}
                     </td>
-                    <td className="detail-td">{ps.attackCount}</td>
+                    <td className="detail-td">{hasStats ? ps.attackCount : '—'}</td>
                     <td className="detail-td">
                       <select
                         className={`detail-select detail-select--${current}`}
@@ -1167,7 +1174,7 @@ function targetKeysOf(stats) {
   return keys;
 }
 
-function FilteredDetailPopup({ mode, filterKey, type, label, stats, assignments, onClose }) {
+function FilteredDetailPopup({ mode, filterKey, type, label, stats, assignments, extraPlayers = [], onClose }) {
   const title = `${label} — ${ASSIGNMENT_LABELS[type]}`;
 
   let playerRows = [];
@@ -1190,7 +1197,11 @@ function FilteredDetailPopup({ mode, filterKey, type, label, stats, assignments,
     const bossData = stats.bosses.find(b => b.apiType === apiType && b.levelId === levelId);
     const miniData = isMini && bossData ? bossData.minis.find(m => m.unitId === miniUnitId) : null;
     const rawPlayerStats = (miniData ? miniData.playerStats : bossData?.playerStats) || [];
-    playerRows = rawPlayerStats
+    const knownIds = new Set(rawPlayerStats.map(ps => ps.userId));
+    const extraRows = extraPlayers
+      .filter(p => !knownIds.has(p.userId))
+      .map(p => ({ userId: p.userId, playerName: p.playerName }));
+    playerRows = [...rawPlayerStats, ...extraRows]
       .filter(ps => (assignments[ps.userId]?.[filterKey] || 'sconsigliato') === type)
       .sort((a, b) => a.playerName.localeCompare(b.playerName));
   } else {

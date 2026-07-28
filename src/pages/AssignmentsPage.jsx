@@ -247,6 +247,7 @@ export default function AssignmentsPage() {
         assignments,           // full per-player per-target state
         stats: stats || null,  // full stats object for immediate restore on load
         saveSeason,
+        extraPlayers,          // players added manually after compute
       });
       await saveAssignment(saveName.trim(), saveSeason, data, [...hiddenSides]);
       showToast('Salvataggio effettuato con successo', 'success');
@@ -292,6 +293,7 @@ export default function AssignmentsPage() {
       }
       if (parsed.saveSeason)  setSaveSeason(parsed.saveSeason);
       else                    setSaveSeason(Number(loadSeason));
+      setExtraPlayers(parsed.extraPlayers || []);
       if (parsed.stats) {
         // Restore saved stats without triggering the assignments-init effect
         skipAssignmentInitRef.current = true;

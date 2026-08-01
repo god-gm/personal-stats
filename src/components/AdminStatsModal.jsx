@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { getTokenUsage, getGuildStats } from '../api/client';
 import './AdminStatsModal.css';
 
@@ -48,7 +49,7 @@ export default function AdminStatsModal({ kind, title, columns, fetcher, onClose
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  return (
+  return createPortal(
     <div className="asm-overlay" onClick={onClose}>
       <div className="asm-modal" onClick={(e) => e.stopPropagation()}>
         <div className="asm-modal__header">
@@ -91,6 +92,7 @@ export default function AdminStatsModal({ kind, title, columns, fetcher, onClose
           </div>
         )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

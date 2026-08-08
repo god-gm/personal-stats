@@ -595,11 +595,31 @@
   color: #ffcc88;
 }
 
-/* ── Export ──────────────────────────────────────────────────────────────── */
+/* ── Export / Wolf Mode row ──────────────────────────────────────────────── */
 .assign-export-row {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
+  align-items: center;
   margin-top: 1.5rem;
+}
+
+.assign-wolf-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  padding: 0.5rem 1.5rem;
+  background: transparent;
+  border: 1px solid rgba(220, 50, 80, 0.45);
+  color: #dc3250;
+  cursor: pointer;
+  clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 8px 100%, 0 calc(100% - 8px));
+  transition: color 0.2s, border-color 0.2s, background 0.2s;
+}
+.assign-wolf-btn:hover {
+  background: rgba(220, 50, 80, 0.1);
+  border-color: rgba(220, 50, 80, 0.75);
+  color: #ff6080;
 }
 
 .assign-export-btn {

@@ -326,6 +326,22 @@ export default function AssignmentsPage() {
     } catch (_) {}
   }
 
+  // ── Wolf Mode ───────────────────────────────────────────────────────────
+  function handleWolfMode() {
+    const targets = allTargetKeys();
+    setAssignments(prev => {
+      const next = { ...prev };
+      for (const userId of Object.keys(next)) {
+        const updated = { ...next[userId] };
+        for (const { key, isBoss } of targets) {
+          updated[key] = isBoss ? 'affrontabile' : 'sconsigliato';
+        }
+        next[userId] = updated;
+      }
+      return next;
+    });
+  }
+
   // ── Export ───────────────────────────────────────────────────────────────
   async function handleExport() {
     if (!stats) return;
@@ -751,7 +767,7 @@ export default function AssignmentsPage() {
                     return (
                     <React.Fragment key={bossKey}>
                       {/* Boss row */}
-                      <tr className="assign-tr assign-tr--boss">
+                      <tr className={`assign-tr assign-tr--boss${hiddenSides.has(bossKey) ? ' assign-tr--hidden' : ''}`}>
                         <td className="assign-td assign-td--target">
                           <span className="assign-level-badge">{boss.levelDesc}</span>
                           {boss.bossDesc}
@@ -772,7 +788,15 @@ export default function AssignmentsPage() {
                           {countByType(bossKey, 'sconsigliato')}
                           <button className="assign-lens-btn" title="Mostra player" onClick={() => openTargetFilter(bossKey, 'sconsigliato', boss.bossDesc)}>🔍</button>
                         </td>
-                        <td className="assign-td" />
+                        <td className="assign-td assign-td--hide">
+                          <input
+                            type="checkbox"
+                            className="assign-hide-check"
+                            checked={hiddenSides.has(bossKey)}
+                            onChange={() => toggleHiddenSide(bossKey)}
+                            title="Nascondi nella dashboard"
+                          />
+                        </td>
                         <td className="assign-td">
                           <button
                             className="assign-detail-btn"
@@ -885,6 +909,12 @@ export default function AssignmentsPage() {
             </div>
 
             <div className="assign-export-row">
+              <button
+                className="assign-wolf-btn"
+                onClick={handleWolfMode}
+              >
+                WOLF MODE
+              </button>
               <button
                 className="assign-export-btn"
                 disabled={exporting}

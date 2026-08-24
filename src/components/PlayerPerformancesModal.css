@@ -110,6 +110,7 @@
 .player-perf-th--rec  { color: #40c880; }
 .player-perf-th--eng  { color: #e0a800; }
 .player-perf-th--nrec { color: #f44336; }
+.player-perf-th--lost { color: #f44336; }
 .player-perf-th--target {
   min-width: 90px;
   white-space: normal;

@@ -66,6 +66,7 @@ export default function PlayerPerformancesModal({ onClose }) {
                 <tr>
                   <th className="player-perf-th player-perf-th--name">Player</th>
                   <th className="player-perf-th">Token Played</th>
+                  <th className="player-perf-th player-perf-th--lost">Lost Tokens</th>
                   <th className="player-perf-th player-perf-th--rec">Recommended %</th>
                   <th className="player-perf-th player-perf-th--eng">Engageable %</th>
                   <th className="player-perf-th player-perf-th--nrec">Not Recommended %</th>
@@ -88,7 +89,13 @@ export default function PlayerPerformancesModal({ onClose }) {
                   return (
                     <tr key={row.userId} className="player-perf-tr">
                       <td className="player-perf-td player-perf-td--name">{row.playerName}</td>
-                      <td className="player-perf-td player-perf-td--center">{total}</td>
+                      <td className="player-perf-td player-perf-td--center">{row.totalTokens}</td>
+                      <td
+                        className="player-perf-td player-perf-td--center"
+                        style={row.lostTokens == null ? {} : { color: row.lostTokens === 0 ? '#40c880' : '#f44336' }}
+                      >
+                        {row.lostTokens ?? '—'}
+                      </td>
                       <td className="player-perf-td player-perf-td--center player-perf-td--rec">
                         {recPct}% ({row.consigliatoTokens})
                       </td>

@@ -4,6 +4,7 @@ import { getCurrentSeason, getPlayerInfo, getCurrentSeasonGuildBest } from '../a
 import BossGroupCard from '../components/BossGroupCard';
 import PlayerInfoPanel from '../components/PlayerInfoPanel';
 import AdminStatsModal from '../components/AdminStatsModal';
+import PlayerPerformancesModal from '../components/PlayerPerformancesModal';
 import './DashboardPage.css';
 
 export default function DashboardPage() {
@@ -13,7 +14,7 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [playerInfo, setPlayerInfo] = useState(null);
   const [displayName, setDisplayName] = useState(localStorage.getItem('user_game_name') || '');
-  const [activeAdminModal, setActiveAdminModal] = useState(null); // 'token-usage' | 'guild-stats' | null
+  const [activeAdminModal, setActiveAdminModal] = useState(null); // 'token-usage' | 'guild-stats' | 'player-performances' | null
   const navigate = useNavigate();
   const isAdmin = localStorage.getItem('user_role') === 'ADMIN';
 
@@ -118,6 +119,12 @@ export default function DashboardPage() {
                   >
                     GUILD STATS
                   </button>
+                  <button
+                    className="dash-admin-panel__btn"
+                    onClick={() => setActiveAdminModal('player-performances')}
+                  >
+                    PLAYERS PERFORMANCES
+                  </button>
                 </div>
               </div>
             )}
@@ -158,6 +165,9 @@ export default function DashboardPage() {
       )}
       {activeAdminModal === 'guild-stats' && (
         <AdminStatsModal kind="guild-stats" onClose={() => setActiveAdminModal(null)} />
+      )}
+      {activeAdminModal === 'player-performances' && (
+        <PlayerPerformancesModal onClose={() => setActiveAdminModal(null)} />
       )}
     </div>
   );

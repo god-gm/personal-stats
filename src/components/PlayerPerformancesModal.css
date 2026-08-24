@@ -1,0 +1,156 @@
+/* ── Overlay (riutilizzato dal pattern detail-overlay di AssignmentsPage) ── */
+.player-perf-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(2, 5, 15, 0.85);
+  z-index: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+/* ── Modal container ────────────────────────────────────────────────────── */
+.player-perf-modal {
+  background: #060c1a;
+  border: 1px solid rgba(0, 200, 255, 0.2);
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+  width: 96vw;
+  max-width: 1100px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.player-perf-modal__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid rgba(0, 200, 255, 0.1);
+  background: rgba(0, 200, 255, 0.04);
+  flex-shrink: 0;
+}
+
+.player-perf-modal__title {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.72rem;
+  color: #00c8ff;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.player-perf-modal__actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.player-perf-modal__close {
+  background: transparent;
+  border: none;
+  color: #2a5068;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: color 0.2s;
+}
+.player-perf-modal__close:hover { color: #ff4444; }
+
+.player-perf-toggle-btn {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: transparent;
+  border: 1px solid rgba(0, 200, 255, 0.25);
+  color: #2a7090;
+  padding: 0.3rem 0.7rem;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+}
+.player-perf-toggle-btn:hover {
+  color: #00c8ff;
+  border-color: rgba(0, 200, 255, 0.55);
+}
+
+/* ── Table ──────────────────────────────────────────────────────────────── */
+.player-perf-table-wrap {
+  overflow: auto;
+  flex: 1;
+}
+
+.player-perf-table {
+  border-collapse: collapse;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.88rem;
+  min-width: 100%;
+}
+
+.player-perf-th {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.52rem;
+  color: #2a5068;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.45rem 0.85rem;
+  text-align: center;
+  border-bottom: 1px solid rgba(0, 200, 255, 0.12);
+  position: sticky;
+  top: 0;
+  background: #060c1a;
+  white-space: nowrap;
+}
+.player-perf-th--name {
+  text-align: left;
+  position: sticky;
+  left: 0;
+  z-index: 3;
+}
+.player-perf-th--rec  { color: #40c880; }
+.player-perf-th--eng  { color: #e0a800; }
+.player-perf-th--nrec { color: #f44336; }
+.player-perf-th--target {
+  min-width: 90px;
+  white-space: normal;
+  line-height: 1.4;
+}
+.player-perf-th__guild-avg {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.78rem;
+  color: #486880;
+  font-weight: normal;
+}
+
+.player-perf-tr { transition: background 0.15s; }
+.player-perf-tr:hover { background: rgba(0, 200, 255, 0.04); }
+
+.player-perf-td {
+  padding: 0.35rem 0.85rem;
+  border-bottom: 1px solid rgba(0, 200, 255, 0.04);
+  color: #c8d8e8;
+}
+.player-perf-td--name {
+  position: sticky;
+  left: 0;
+  background: #060c1a;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.player-perf-tr:hover .player-perf-td--name {
+  background: rgba(0, 200, 255, 0.04);
+}
+.player-perf-td--center { text-align: center; }
+.player-perf-td--rec  { color: #40c880; }
+.player-perf-td--eng  { color: #e0a800; }
+.player-perf-td--nrec { color: #f44336; }
+
+/* ── Status / loading / error ───────────────────────────────────────────── */
+.player-perf-status {
+  padding: 2rem;
+  text-align: center;
+  font-family: 'Rajdhani', sans-serif;
+  color: #7090a8;
+  font-size: 0.95rem;
+}
+.player-perf-status--error { color: #f44336; }

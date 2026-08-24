@@ -1,4 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { listSavedAssignments, loadAssignment } from '../api/client';
+import './PlayerPerformancesModal.css';
 
 function fmt(n) {
   if (!n && n !== 0) return '—';
@@ -15,8 +17,40 @@ function getAvgColor(playerAvg, guildAvg) {
   return '#ffc107';
 }
 
-export default function PlayerPerformancesModal({ stats, assignments, extraPlayers, onClose }) {
+export default function PlayerPerformancesModal({ onClose }) {
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const [stats, setStats] = useState(null);
+  const [assignments, setAssignments] = useState({});
+  const [extraPlayers, setExtraPlayers] = useState([]);
   const [showTargetCols, setShowTargetCols] = useState(false);
+
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const listRes = await listSavedAssignments();
+        if (listRes.status !== 'OK' || !listRes.data?.length) {
+          setError('Nessun assignment salvato trovato.');
+          return;
+        }
+        const latest = listRes.data[0];
+        const loadRes = await loadAssignment(latest.name, latest.seasonNumber);
+        if (loadRes.status !== 'OK' || !loadRes.data) {
+          setError('Impossibile caricare i dati dell\'assignment.');
+          return;
+        }
+        const blob = JSON.parse(loadRes.data);
+        setStats(blob.stats ?? null);
+        setAssignments(blob.assignments ?? {});
+        setExtraPlayers(blob.extraPlayers ?? []);
+      } catch (e) {
+        setError(e.message || 'Errore nel caricamento dei dati.');
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
 
   const targets = useMemo(() => {
     const result = [];
@@ -43,7 +77,7 @@ export default function PlayerPerformancesModal({ stats, assignments, extraPlaye
 
   const allPlayers = useMemo(() => {
     const base = stats?.playerAssignments?.map(pa => ({ userId: pa.userId, playerName: pa.playerName })) ?? [];
-    return [...base, ...(extraPlayers ?? [])].sort((a, b) => a.playerName.localeCompare(b.playerName));
+    return [...base, ...extraPlayers].sort((a, b) => a.playerName.localeCompare(b.playerName));
   }, [stats, extraPlayers]);
 
   const targetStatMap = useMemo(() => {
@@ -96,70 +130,80 @@ export default function PlayerPerformancesModal({ stats, assignments, extraPlaye
   }, [allPlayers, assignments, targets, targetStatMap]);
 
   return (
-    <div className="detail-overlay" onClick={onClose}>
+    <div className="player-perf-overlay" onClick={onClose}>
       <div className="player-perf-modal" onClick={e => e.stopPropagation()}>
         <div className="player-perf-modal__header">
           <span className="player-perf-modal__title">PLAYERS PERFORMANCES</span>
           <div className="player-perf-modal__actions">
-            <button
-              className="player-perf-toggle-btn"
-              onClick={() => setShowTargetCols(v => !v)}
-            >
-              {showTargetCols ? '◀ NASCONDI TARGET' : '▶ MOSTRA TARGET'}
-            </button>
-            <button className="detail-modal__close" onClick={onClose}>✕</button>
+            {!loading && !error && (
+              <button
+                className="player-perf-toggle-btn"
+                onClick={() => setShowTargetCols(v => !v)}
+              >
+                {showTargetCols ? '◀ NASCONDI TARGET' : '▶ MOSTRA TARGET'}
+              </button>
+            )}
+            <button className="player-perf-modal__close" onClick={onClose}>✕</button>
           </div>
         </div>
 
         <div className="player-perf-table-wrap">
-          <table className="player-perf-table">
-            <thead>
-              <tr>
-                <th className="player-perf-th player-perf-th--name">Player</th>
-                <th className="player-perf-th">Token Played</th>
-                <th className="player-perf-th player-perf-th--rec">Recommended %</th>
-                <th className="player-perf-th player-perf-th--eng">Engageable %</th>
-                <th className="player-perf-th player-perf-th--nrec">Not Recommended %</th>
-                {showTargetCols && targets.map(t => (
-                  <th key={t.key} className="player-perf-th player-perf-th--target">
-                    {t.label}
-                    <br />
-                    <span className="player-perf-th__guild-avg">({fmt(t.guildAverage)})</span>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(row => (
-                <tr key={row.userId} className="player-perf-tr">
-                  <td className="player-perf-td player-perf-td--name">{row.playerName}</td>
-                  <td className="player-perf-td player-perf-td--center">{row.totalTokens}</td>
-                  <td className="player-perf-td player-perf-td--center player-perf-td--rec">
-                    {row.recPct}% ({row.recTokens})
-                  </td>
-                  <td className="player-perf-td player-perf-td--center player-perf-td--eng">
-                    {row.engPct}% ({row.engTokens})
-                  </td>
-                  <td className="player-perf-td player-perf-td--center player-perf-td--nrec">
-                    {row.notRecPct}% ({row.notRecTokens})
-                  </td>
-                  {showTargetCols && targets.map(t => {
-                    const avg = row.targetAvgMap[t.key];
-                    const color = avg != null ? getAvgColor(avg, t.guildAverage) : null;
-                    return (
-                      <td
-                        key={t.key}
-                        className="player-perf-td player-perf-td--center"
-                        style={color ? { color } : {}}
-                      >
-                        {avg != null ? fmt(avg) : '—'}
-                      </td>
-                    );
-                  })}
+          {loading && (
+            <p className="player-perf-status">Caricamento...</p>
+          )}
+          {error && (
+            <p className="player-perf-status player-perf-status--error">{error}</p>
+          )}
+          {!loading && !error && (
+            <table className="player-perf-table">
+              <thead>
+                <tr>
+                  <th className="player-perf-th player-perf-th--name">Player</th>
+                  <th className="player-perf-th">Token Played</th>
+                  <th className="player-perf-th player-perf-th--rec">Recommended %</th>
+                  <th className="player-perf-th player-perf-th--eng">Engageable %</th>
+                  <th className="player-perf-th player-perf-th--nrec">Not Recommended %</th>
+                  {showTargetCols && targets.map(t => (
+                    <th key={t.key} className="player-perf-th player-perf-th--target">
+                      {t.label}
+                      <br />
+                      <span className="player-perf-th__guild-avg">({fmt(t.guildAverage)})</span>
+                    </th>
+                  ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {rows.map(row => (
+                  <tr key={row.userId} className="player-perf-tr">
+                    <td className="player-perf-td player-perf-td--name">{row.playerName}</td>
+                    <td className="player-perf-td player-perf-td--center">{row.totalTokens}</td>
+                    <td className="player-perf-td player-perf-td--center player-perf-td--rec">
+                      {row.recPct}% ({row.recTokens})
+                    </td>
+                    <td className="player-perf-td player-perf-td--center player-perf-td--eng">
+                      {row.engPct}% ({row.engTokens})
+                    </td>
+                    <td className="player-perf-td player-perf-td--center player-perf-td--nrec">
+                      {row.notRecPct}% ({row.notRecTokens})
+                    </td>
+                    {showTargetCols && targets.map(t => {
+                      const avg = row.targetAvgMap[t.key];
+                      const color = avg != null ? getAvgColor(avg, t.guildAverage) : null;
+                      return (
+                        <td
+                          key={t.key}
+                          className="player-perf-td player-perf-td--center"
+                          style={color ? { color } : {}}
+                        >
+                          {avg != null ? fmt(avg) : '—'}
+                        </td>
+                      );
+                    })}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
     </div>

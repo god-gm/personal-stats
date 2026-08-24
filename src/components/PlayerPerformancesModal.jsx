@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { listSavedAssignments, loadAssignment } from '../api/client';
+import { listSavedAssignments, loadAssignment, getPlayerTokenBreakdown } from '../api/client';
 import './PlayerPerformancesModal.css';
 
 function fmt(n) {
@@ -19,30 +19,40 @@ function getAvgColor(playerAvg, guildAvg) {
 
 export default function PlayerPerformancesModal({ onClose }) {
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [stats, setStats] = useState(null);
-  const [assignments, setAssignments] = useState({});
-  const [extraPlayers, setExtraPlayers] = useState([]);
+  const [error, setError]     = useState('');
+
+  // Token breakdown from new API (current season, correct counts)
+  const [breakdown, setBreakdown] = useState([]); // [{ userId, playerName, totalTokens, consigliatoTokens, affrontabileTokens, sconsigliatiTokens }]
+
+  // Stats and targets from the saved assignment blob (for damage average columns)
+  const [targets, setTargets] = useState([]);      // [{ key, label, guildAverage, playerStatMap }]
+
   const [showTargetCols, setShowTargetCols] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const listRes = await listSavedAssignments();
-        if (listRes.status !== 'OK' || !listRes.data?.length) {
-          setError('Nessun assignment salvato trovato.');
+        // Load token breakdown and saved assignment data in parallel
+        const [breakdownRes, listRes] = await Promise.all([
+          getPlayerTokenBreakdown(),
+          listSavedAssignments(),
+        ]);
+
+        if (breakdownRes.status !== 'OK') {
+          setError(breakdownRes.message || 'Errore nel caricamento del breakdown token.');
           return;
         }
-        const latest = listRes.data[0];
-        const loadRes = await loadAssignment(latest.name, latest.seasonNumber);
-        if (loadRes.status !== 'OK' || !loadRes.data) {
-          setError('Impossibile caricare i dati dell\'assignment.');
-          return;
+        setBreakdown(breakdownRes.data ?? []);
+
+        // Load saved assignment for damage average columns
+        if (listRes.status === 'OK' && listRes.data?.length) {
+          const latest = listRes.data[0];
+          const loadRes = await loadAssignment(latest.name, latest.seasonNumber);
+          if (loadRes.status === 'OK' && loadRes.data) {
+            const blob = JSON.parse(loadRes.data);
+            setTargets(buildTargets(blob.stats));
+          }
         }
-        const blob = JSON.parse(loadRes.data);
-        setStats(blob.stats ?? null);
-        setAssignments(blob.assignments ?? {});
-        setExtraPlayers(blob.extraPlayers ?? []);
       } catch (e) {
         setError(e.message || 'Errore nel caricamento dei dati.');
       } finally {
@@ -51,83 +61,6 @@ export default function PlayerPerformancesModal({ onClose }) {
     }
     fetchData();
   }, []);
-
-  const targets = useMemo(() => {
-    const result = [];
-    if (!stats?.bosses) return result;
-    for (const b of stats.bosses) {
-      const bossKey = `${b.levelId}_${b.apiType}`;
-      result.push({
-        key: bossKey,
-        label: b.bossDesc,
-        guildAverage: b.guildAverage,
-        playerStats: b.playerStats ?? [],
-      });
-      for (const m of b.minis ?? []) {
-        result.push({
-          key: `${bossKey}__${m.unitId}`,
-          label: m.name,
-          guildAverage: m.guildAverage,
-          playerStats: m.playerStats ?? [],
-        });
-      }
-    }
-    return result;
-  }, [stats]);
-
-  const allPlayers = useMemo(() => {
-    const base = stats?.playerAssignments?.map(pa => ({ userId: pa.userId, playerName: pa.playerName })) ?? [];
-    return [...base, ...extraPlayers].sort((a, b) => a.playerName.localeCompare(b.playerName));
-  }, [stats, extraPlayers]);
-
-  const targetStatMap = useMemo(() => {
-    const map = {};
-    for (const t of targets) {
-      const playerMap = {};
-      for (const ps of t.playerStats) {
-        playerMap[ps.userId] = { average: ps.average, attackCount: ps.attackCount };
-      }
-      map[t.key] = playerMap;
-    }
-    return map;
-  }, [targets]);
-
-  const rows = useMemo(() => {
-    return allPlayers.map(player => {
-      const playerAsgn = assignments[player.userId] ?? {};
-      let totalTokens = 0;
-      let recTokens = 0;
-      let engTokens = 0;
-      let notRecTokens = 0;
-      const targetAvgMap = {};
-
-      for (const t of targets) {
-        const stat = targetStatMap[t.key]?.[player.userId];
-        const attackCount = stat?.attackCount ?? 0;
-        const assignType = playerAsgn[t.key] ?? 'sconsigliato';
-
-        totalTokens += attackCount;
-        if (assignType === 'consigliato') recTokens += attackCount;
-        else if (assignType === 'affrontabile') engTokens += attackCount;
-        else notRecTokens += attackCount;
-
-        targetAvgMap[t.key] = stat?.average ?? null;
-      }
-
-      const recPct = totalTokens > 0 ? Math.round((recTokens / totalTokens) * 100) : 0;
-      const engPct = totalTokens > 0 ? Math.round((engTokens / totalTokens) * 100) : 0;
-      const notRecPct = totalTokens > 0 ? Math.round((notRecTokens / totalTokens) * 100) : 0;
-
-      return {
-        ...player,
-        totalTokens,
-        recTokens, recPct,
-        engTokens, engPct,
-        notRecTokens, notRecPct,
-        targetAvgMap,
-      };
-    });
-  }, [allPlayers, assignments, targets, targetStatMap]);
 
   return (
     <div className="player-perf-overlay" onClick={onClose}>
@@ -148,12 +81,9 @@ export default function PlayerPerformancesModal({ onClose }) {
         </div>
 
         <div className="player-perf-table-wrap">
-          {loading && (
-            <p className="player-perf-status">Caricamento...</p>
-          )}
-          {error && (
-            <p className="player-perf-status player-perf-status--error">{error}</p>
-          )}
+          {loading && <p className="player-perf-status">Caricamento...</p>}
+          {error   && <p className="player-perf-status player-perf-status--error">{error}</p>}
+
           {!loading && !error && (
             <table className="player-perf-table">
               <thead>
@@ -173,34 +103,41 @@ export default function PlayerPerformancesModal({ onClose }) {
                 </tr>
               </thead>
               <tbody>
-                {rows.map(row => (
-                  <tr key={row.userId} className="player-perf-tr">
-                    <td className="player-perf-td player-perf-td--name">{row.playerName}</td>
-                    <td className="player-perf-td player-perf-td--center">{row.totalTokens}</td>
-                    <td className="player-perf-td player-perf-td--center player-perf-td--rec">
-                      {row.recPct}% ({row.recTokens})
-                    </td>
-                    <td className="player-perf-td player-perf-td--center player-perf-td--eng">
-                      {row.engPct}% ({row.engTokens})
-                    </td>
-                    <td className="player-perf-td player-perf-td--center player-perf-td--nrec">
-                      {row.notRecPct}% ({row.notRecTokens})
-                    </td>
-                    {showTargetCols && targets.map(t => {
-                      const avg = row.targetAvgMap[t.key];
-                      const color = avg != null ? getAvgColor(avg, t.guildAverage) : null;
-                      return (
-                        <td
-                          key={t.key}
-                          className="player-perf-td player-perf-td--center"
-                          style={color ? { color } : {}}
-                        >
-                          {avg != null ? fmt(avg) : '—'}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
+                {breakdown.map(row => {
+                  const total = row.totalTokens;
+                  const recPct    = total > 0 ? Math.round((row.consigliatoTokens  / total) * 100) : 0;
+                  const engPct    = total > 0 ? Math.round((row.affrontabileTokens / total) * 100) : 0;
+                  const notRecPct = total > 0 ? Math.round((row.sconsigliatiTokens / total) * 100) : 0;
+
+                  return (
+                    <tr key={row.userId} className="player-perf-tr">
+                      <td className="player-perf-td player-perf-td--name">{row.playerName}</td>
+                      <td className="player-perf-td player-perf-td--center">{total}</td>
+                      <td className="player-perf-td player-perf-td--center player-perf-td--rec">
+                        {recPct}% ({row.consigliatoTokens})
+                      </td>
+                      <td className="player-perf-td player-perf-td--center player-perf-td--eng">
+                        {engPct}% ({row.affrontabileTokens})
+                      </td>
+                      <td className="player-perf-td player-perf-td--center player-perf-td--nrec">
+                        {notRecPct}% ({row.sconsigliatiTokens})
+                      </td>
+                      {showTargetCols && targets.map(t => {
+                        const avg   = t.playerStatMap[row.userId] ?? null;
+                        const color = avg != null ? getAvgColor(avg, t.guildAverage) : null;
+                        return (
+                          <td
+                            key={t.key}
+                            className="player-perf-td player-perf-td--center"
+                            style={color ? { color } : {}}
+                          >
+                            {avg != null ? fmt(avg) : '—'}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           )}
@@ -208,4 +145,35 @@ export default function PlayerPerformancesModal({ onClose }) {
       </div>
     </div>
   );
+}
+
+function buildTargets(stats) {
+  if (!stats?.bosses) return [];
+  const targets = [];
+  for (const b of stats.bosses) {
+    const bossKey = `${b.levelId}_${b.apiType}`;
+    targets.push({
+      key: bossKey,
+      label: b.bossDesc,
+      guildAverage: b.guildAverage,
+      playerStatMap: buildPlayerStatMap(b.playerStats),
+    });
+    for (const m of b.minis ?? []) {
+      targets.push({
+        key: `${bossKey}__${m.unitId}`,
+        label: m.name,
+        guildAverage: m.guildAverage,
+        playerStatMap: buildPlayerStatMap(m.playerStats),
+      });
+    }
+  }
+  return targets;
+}
+
+function buildPlayerStatMap(playerStats) {
+  const map = {};
+  for (const ps of playerStats ?? []) {
+    map[ps.userId] = ps.average;
+  }
+  return map;
 }

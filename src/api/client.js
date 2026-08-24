@@ -58,6 +58,10 @@ export async function getTargetConsigliato(unitId, rarity) {
   return request(`/api/admin/target-consigliato?unitId=${encodeURIComponent(unitId)}&rarity=${encodeURIComponent(rarity)}`);
 }
 
+export async function getPlayerTokenBreakdown() {
+  return request('/api/admin/player-token-breakdown');
+}
+
 export async function getTargetAttacks(unitId, rarity) {
   return request(`/api/admin/target-attacks?unitId=${encodeURIComponent(unitId)}&rarity=${encodeURIComponent(rarity)}`);
 }

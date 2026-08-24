@@ -80,10 +80,10 @@ export default function PlayerPerformancesModal({ onClose }) {
               </thead>
               <tbody>
                 {players.map(row => {
-                  const total     = row.totalTokens;
-                  const recPct    = total > 0 ? Math.round((row.consigliatoTokens  / total) * 100) : 0;
-                  const engPct    = total > 0 ? Math.round((row.affrontabileTokens / total) * 100) : 0;
-                  const notRecPct = total > 0 ? Math.round((row.sconsigliatiTokens / total) * 100) : 0;
+                  const legMythTotal = row.consigliatoTokens + row.affrontabileTokens + row.sconsigliatiTokens;
+                  const recPct    = legMythTotal > 0 ? Math.round((row.consigliatoTokens  / legMythTotal) * 100) : 0;
+                  const engPct    = legMythTotal > 0 ? Math.round((row.affrontabileTokens / legMythTotal) * 100) : 0;
+                  const notRecPct = legMythTotal > 0 ? Math.round((row.sconsigliatiTokens / legMythTotal) * 100) : 0;
 
                   return (
                     <tr key={row.userId} className="player-perf-tr">

@@ -12,6 +12,7 @@ import {
   getEnabledPlayers,
 } from '../api/client';
 import ScifiSpinner from '../components/ScifiSpinner';
+import PlayerPerformancesModal from '../components/PlayerPerformancesModal';
 import './AssignmentsPage.css';
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -84,6 +85,9 @@ export default function AssignmentsPage() {
 
   // Extra players added manually (not in the compute response)
   const [extraPlayers, setExtraPlayers] = useState([]);
+
+  // Players Performances modal
+  const [showPlayerPerformances, setShowPlayerPerformances] = useState(false);
 
   // Add-player modal
   const [showAddPlayerModal, setShowAddPlayerModal] = useState(false);
@@ -916,6 +920,12 @@ export default function AssignmentsPage() {
                 WOLF MODE
               </button>
               <button
+                className="assign-perf-btn"
+                onClick={() => setShowPlayerPerformances(true)}
+              >
+                PLAYERS PERFORMANCES
+              </button>
+              <button
                 className="assign-export-btn"
                 disabled={exporting}
                 onClick={handleExport}
@@ -998,6 +1008,16 @@ export default function AssignmentsPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* ── Players Performances modal ─────────────────────────────────────── */}
+      {showPlayerPerformances && stats && (
+        <PlayerPerformancesModal
+          stats={stats}
+          assignments={assignments}
+          extraPlayers={extraPlayers}
+          onClose={() => setShowPlayerPerformances(false)}
+        />
       )}
 
       {/* ── Add player modal ───────────────────────────────────────────────── */}

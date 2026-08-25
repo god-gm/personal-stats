@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { getPlayerTokenBreakdown } from '../api/client';
 import './PlayerPerformancesModal.css';
 
@@ -18,11 +18,13 @@ function getAvgColor(playerAvg, guildAvg) {
 }
 
 export default function PlayerPerformancesModal({ onClose }) {
-  const [loading, setLoading]         = useState(true);
-  const [error, setError]             = useState('');
-  const [players, setPlayers]         = useState([]);
-  const [targets, setTargets]         = useState([]);
+  const [loading, setLoading]               = useState(true);
+  const [error, setError]                   = useState('');
+  const [players, setPlayers]               = useState([]);
+  const [targets, setTargets]               = useState([]);
   const [showTargetCols, setShowTargetCols] = useState(false);
+  const [sortKey, setSortKey]               = useState('playerName');
+  const [sortDir, setSortDir]               = useState('asc');
 
   useEffect(() => {
     getPlayerTokenBreakdown()
@@ -37,6 +39,70 @@ export default function PlayerPerformancesModal({ onClose }) {
       .catch(e => setError(e.message || 'Errore nel caricamento dei dati.'))
       .finally(() => setLoading(false));
   }, []);
+
+  function handleSort(key) {
+    if (sortKey === key) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortKey(key);
+      setSortDir('asc');
+    }
+  }
+
+  function sortIcon(key) {
+    if (sortKey !== key) return <span className="player-perf-th__sort-icon"> ⇅</span>;
+    return (
+      <span className="player-perf-th__sort-icon player-perf-th__sort-icon--active">
+        {sortDir === 'asc' ? ' ▲' : ' ▼'}
+      </span>
+    );
+  }
+
+  const sortedPlayers = useMemo(() => {
+    if (!players.length) return players;
+    const dir = sortDir === 'asc' ? 1 : -1;
+
+    return [...players].sort((a, b) => {
+      if (sortKey === 'playerName') {
+        return dir * (a.playerName ?? '').localeCompare(b.playerName ?? '', undefined, { sensitivity: 'base' });
+      }
+      if (sortKey === 'totalTokens') {
+        return dir * ((a.totalTokens ?? 0) - (b.totalTokens ?? 0));
+      }
+      if (sortKey === 'lostTokens') {
+        if (a.lostTokens == null && b.lostTokens == null) return 0;
+        if (a.lostTokens == null) return 1;
+        if (b.lostTokens == null) return -1;
+        return dir * (a.lostTokens - b.lostTokens);
+      }
+      if (sortKey === 'recPct' || sortKey === 'engPct' || sortKey === 'notRecPct') {
+        const pct = (row) => {
+          const total = row.consigliatoTokens + row.affrontabileTokens + row.sconsigliatiTokens;
+          if (total === 0) return 0;
+          if (sortKey === 'recPct')    return row.consigliatoTokens  / total;
+          if (sortKey === 'engPct')    return row.affrontabileTokens / total;
+          return row.sconsigliatiTokens / total;
+        };
+        return dir * (pct(a) - pct(b));
+      }
+      // target column
+      const target = targets.find(t => t.key === sortKey);
+      if (!target) return 0;
+      const aAvg = target.playerAverages?.[a.userId] ?? null;
+      const bAvg = target.playerAverages?.[b.userId] ?? null;
+      if (aAvg == null && bAvg == null) return 0;
+      if (aAvg == null) return 1;
+      if (bAvg == null) return -1;
+      return dir * (aAvg - bAvg);
+    });
+  }, [players, targets, sortKey, sortDir]);
+
+  function thProps(key, extraClass = '') {
+    return {
+      className: `player-perf-th player-perf-th--sortable${extraClass ? ` ${extraClass}` : ''}`,
+      onClick: () => handleSort(key),
+    };
+  }
 
   return (
     <div className="player-perf-overlay" onClick={onClose}>
@@ -64,23 +130,36 @@ export default function PlayerPerformancesModal({ onClose }) {
             <table className="player-perf-table">
               <thead>
                 <tr>
-                  <th className="player-perf-th player-perf-th--name">Player</th>
-                  <th className="player-perf-th">Token Played</th>
-                  <th className="player-perf-th player-perf-th--lost">Lost Tokens</th>
-                  <th className="player-perf-th player-perf-th--rec">Recommended %</th>
-                  <th className="player-perf-th player-perf-th--eng">Engageable %</th>
-                  <th className="player-perf-th player-perf-th--nrec">Not Recommended %</th>
+                  <th {...thProps('playerName', 'player-perf-th--name')}>
+                    Player{sortIcon('playerName')}
+                  </th>
+                  <th {...thProps('totalTokens')}>
+                    Token Played{sortIcon('totalTokens')}
+                  </th>
+                  <th {...thProps('lostTokens', 'player-perf-th--lost')}>
+                    Lost Tokens{sortIcon('lostTokens')}
+                  </th>
+                  <th {...thProps('recPct', 'player-perf-th--rec')}>
+                    Recommended %{sortIcon('recPct')}
+                  </th>
+                  <th {...thProps('engPct', 'player-perf-th--eng')}>
+                    Engageable %{sortIcon('engPct')}
+                  </th>
+                  <th {...thProps('notRecPct', 'player-perf-th--nrec')}>
+                    Not Recommended %{sortIcon('notRecPct')}
+                  </th>
                   {showTargetCols && targets.map(t => (
-                    <th key={t.key} className="player-perf-th player-perf-th--target">
+                    <th key={t.key} {...thProps(t.key, 'player-perf-th--target')}>
                       {t.label}
                       <br />
                       <span className="player-perf-th__guild-avg">({fmt(t.guildAverage)})</span>
+                      {sortIcon(t.key)}
                     </th>
                   ))}
                 </tr>
               </thead>
               <tbody>
-                {players.map(row => {
+                {sortedPlayers.map(row => {
                   const legMythTotal = row.consigliatoTokens + row.affrontabileTokens + row.sconsigliatiTokens;
                   const recPct    = legMythTotal > 0 ? Math.round((row.consigliatoTokens  / legMythTotal) * 100) : 0;
                   const engPct    = legMythTotal > 0 ? Math.round((row.affrontabileTokens / legMythTotal) * 100) : 0;

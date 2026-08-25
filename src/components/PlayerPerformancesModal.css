@@ -87,6 +87,23 @@
   min-width: 100%;
 }
 
+.player-perf-th--sortable {
+  cursor: pointer;
+  user-select: none;
+}
+.player-perf-th--sortable:hover {
+  color: #00c8ff;
+}
+
+.player-perf-th__sort-icon {
+  opacity: 0.3;
+  font-size: 0.55rem;
+}
+.player-perf-th__sort-icon--active {
+  opacity: 1;
+  color: #00c8ff;
+}
+
 .player-perf-th {
   font-family: 'Orbitron', sans-serif;
   font-size: 0.52rem;

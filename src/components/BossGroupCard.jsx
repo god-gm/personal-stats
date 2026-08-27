@@ -93,7 +93,7 @@ function EncounterCard({ enc, isBoss, guildBest, isAdmin, rarity, onOpenAdminMod
         <StatBlock label="PERSONAL AVERAGE" value={fmt(enc.playerAverage || null)} accent />
         <StatBlock label="PERSONAL BEST"    value={fmt(enc.playerBest || null)} />
         <StatBlock label="GUILD AVERAGE"    value={fmt(enc.guildAverage || null)} />
-        <StatBlock label="GUILD BEST"       value={fmt(guildBest?.[enc.unitId] || null)} />
+        <StatBlock label="GUILD BEST"       value={fmt(guildBest?.[enc.unitId + '|' + rarity] || null)} />
       </div>
     </div>
   );

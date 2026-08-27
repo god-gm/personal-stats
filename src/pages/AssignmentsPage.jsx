@@ -1198,9 +1198,9 @@ function targetKeysOf(stats) {
   const keys = [];
   for (const b of stats.bosses) {
     const bossKey = `${b.levelId}_${b.apiType}`;
-    keys.push({ key: bossKey, label: b.bossDesc });
+    keys.push({ key: bossKey, label: `[${b.levelDesc}] ${b.bossDesc}` });
     for (const m of b.minis) {
-      keys.push({ key: `${bossKey}__${m.unitId}`, label: `${b.bossDesc} → ${m.name}` });
+      keys.push({ key: `${bossKey}__${m.unitId}`, label: `[${b.levelDesc}] ${b.bossDesc} → ${m.name}` });
     }
   }
   return keys;

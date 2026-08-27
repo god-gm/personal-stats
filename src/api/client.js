@@ -54,8 +54,9 @@ export async function getGuildStats() {
   return request('/api/admin/guild-stats');
 }
 
-export async function getTargetConsigliato(unitId, rarity) {
-  return request(`/api/admin/target-consigliato?unitId=${encodeURIComponent(unitId)}&rarity=${encodeURIComponent(rarity)}`);
+export async function getTargetConsigliato(unitId, rarity, levelDesc) {
+  const url = `/api/admin/target-consigliato?unitId=${encodeURIComponent(unitId)}&rarity=${encodeURIComponent(rarity)}${levelDesc ? `&levelDesc=${encodeURIComponent(levelDesc)}` : ''}`;
+  return request(url);
 }
 
 export async function getPlayerTokenBreakdown() {

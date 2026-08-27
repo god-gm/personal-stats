@@ -144,7 +144,7 @@ export default function BossGroupCard({ group, guildBest, isAdmin }) {
           title={`${adminModal.label} — ${adminModal.mode === 'consigliato' ? 'RECOMMENDED PLAYERS' : 'ATTACKERS'}`}
           columns={adminModal.mode === 'consigliato' ? CONSIGLIATO_COLUMNS : ATTACKS_COLUMNS}
           fetcher={() => adminModal.mode === 'consigliato'
-            ? getTargetConsigliato(adminModal.unitId, rarity)
+            ? getTargetConsigliato(adminModal.unitId, rarity, label)
             : getTargetAttacks(adminModal.unitId, rarity)}
           onClose={() => setAdminModal(null)}
         />

@@ -45,7 +45,7 @@ export default function LoginPage() {
         <div className="login-card__corner bl" />
         <div className="login-card__corner br" />
         <div className="login-logo">☠</div>
-        <h1 className="login-title">HECATOMB</h1>
+        <h1 className="login-title">ORDO MALLEUS</h1>
         <p className="login-subtitle">Guild Raid Performance Tracker</p>
         <div className="login-divider" />
         <p className="login-instructions">IDENTIFICA OPERATIVO TRAMITE DISCORD</p>

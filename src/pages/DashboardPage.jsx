@@ -64,7 +64,7 @@ export default function DashboardPage() {
       <header className="dash-header">
         <div className="dash-header__logo">
           <span className="dash-header__icon">☠</span>
-          <span className="dash-header__name">HECATOMB</span>
+          <span className="dash-header__name">ORDO MALLEUS</span>
         </div>
         <div className="dash-header__right">
           {displayName && <span className="dash-header__player">{displayName}</span>}

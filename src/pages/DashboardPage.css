@@ -251,7 +251,8 @@
 .dash-legend__dot {
   font-family: 'Rajdhani', sans-serif;
   font-size: 0.9rem;
-  font-weight: 600;
+  font-weight: 700;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 

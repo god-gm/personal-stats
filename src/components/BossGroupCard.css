@@ -233,7 +233,8 @@
 .enc-assign-badge {
   font-family: 'Rajdhani', sans-serif;
   font-size: 0.82rem;
-  font-weight: 600;
+  font-weight: 700;
+  text-transform: uppercase;
   white-space: nowrap;
 }
 

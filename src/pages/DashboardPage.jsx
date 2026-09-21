@@ -141,18 +141,9 @@ export default function DashboardPage() {
               <div className="dash-legend">
                 <span className="dash-legend__title">ASSIGNMENT LEGEND</span>
                 <div className="dash-legend__items">
-                  <div className="dash-legend__item">
-                    <span className="dash-legend__badge dash-legend__badge--consigliato">Recommended</span>
-                    <span className="dash-legend__desc">2/3 Tokens</span>
-                  </div>
-                  <div className="dash-legend__item">
-                    <span className="dash-legend__badge dash-legend__badge--affrontabile">Engageable</span>
-                    <span className="dash-legend__desc">1 Token</span>
-                  </div>
-                  <div className="dash-legend__item">
-                    <span className="dash-legend__badge dash-legend__badge--sconsigliato">Not Recommended</span>
-                    <span className="dash-legend__desc">0 Tokens (only to avoid going full)</span>
-                  </div>
+                  <span className="dash-legend__dot dash-legend__dot--consigliato">🟢 2-3 tokens</span>
+                  <span className="dash-legend__dot dash-legend__dot--affrontabile">🟠 max 1 token</span>
+                  <span className="dash-legend__dot dash-legend__dot--sconsigliato">🔴 only to avoid cap</span>
                 </div>
               </div>
             )}

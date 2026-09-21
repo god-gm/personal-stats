@@ -248,43 +248,16 @@
   align-items: center;
 }
 
-.dash-legend__item {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.dash-legend__badge {
-  font-family: 'Rajdhani', sans-serif;
-  font-size: 0.78rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  padding: 0.2rem 0.6rem;
-  border: 1px solid;
-  clip-path: polygon(0 0, calc(100% - 5px) 0, 100% 5px, 100% 100%, 5px 100%, 0 calc(100% - 5px));
-  white-space: nowrap;
-}
-.dash-legend__badge--consigliato {
-  color: #ffffff;
-  border-color: rgba(76, 175, 80, 0.55);
-  background: rgba(76, 175, 80, 0.1);
-}
-.dash-legend__badge--affrontabile {
-  color: #ffb347;
-  border-color: rgba(255, 179, 71, 0.55);
-  background: rgba(255, 179, 71, 0.1);
-}
-.dash-legend__badge--sconsigliato {
-  color: #ef5350;
-  border-color: rgba(239, 83, 80, 0.55);
-  background: rgba(239, 83, 80, 0.1);
-}
-
-.dash-legend__desc {
+.dash-legend__dot {
   font-family: 'Rajdhani', sans-serif;
   font-size: 0.9rem;
-  color: #7090a8;
+  font-weight: 600;
+  white-space: nowrap;
 }
+
+.dash-legend__dot--consigliato { color: #4caf50; }
+.dash-legend__dot--affrontabile { color: #ffb347; }
+.dash-legend__dot--sconsigliato { color: #ef5350; }
 
 /* ── Mobile layout (≤ 640px) ── */
 @media (max-width: 640px) {

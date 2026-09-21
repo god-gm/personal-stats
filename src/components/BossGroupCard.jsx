@@ -9,10 +9,10 @@ const CDN = 'https://cdn.ezekiel.snowprintstudios.com';
 const fmt = (n) => (n != null ? n.toLocaleString('it-IT') : '—');
 
 const ASSIGNMENT_LABELS = {
-  consigliato:  'Recommended',
-  affrontabile: 'Engageable',
-  sconsigliato: 'Not Recommended',
-  prioritario:  'Priority',
+  consigliato:  '🟢 2-3 tokens',
+  affrontabile: '🟠 max 1 token',
+  sconsigliato: '🔴 only to avoid cap',
+  prioritario:  '🟢 Priority',
 };
 
 const CONSIGLIATO_COLUMNS = [

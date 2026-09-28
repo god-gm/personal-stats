@@ -148,6 +148,8 @@
 .stm-th--right  { text-align: right; }
 .stm-th--center { text-align: center; }
 .stm-th--rank   { width: 2rem; text-align: center; }
+.stm-th--pci    { width: 5.5rem; }
+.stm-th--chart  { width: 160px; }
 
 .stm-td {
   padding: 0.45rem 0.6rem;
@@ -159,10 +161,49 @@
 .stm-td--center { text-align: center; }
 .stm-td--rank   { text-align: center; color: #4a7090; font-size: 0.8rem; }
 .stm-td--name   { font-weight: 600; }
-.stm-td--delta  { font-weight: 700; font-variant-numeric: tabular-nums; }
+.stm-td--pci    { font-weight: 700; font-variant-numeric: tabular-nums; }
+.stm-td--chart  { padding: 0.2rem 0.6rem; vertical-align: middle; }
 .stm-td--pos    { color: #4cca6e; }
 .stm-td--neg    { color: #ff5a5a; }
 .stm-td--empty  { text-align: center; color: #4a7090; padding: 1.25rem; }
+
+/* ── PCI bar chart ── */
+
+.stm-pci-bar-wrap {
+  position: relative;
+  width: 100%;
+  height: 10px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 1px;
+}
+
+.stm-pci-bar-wrap::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  width: 1px;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.stm-pci-bar {
+  position: absolute;
+  top: 1px;
+  height: 8px;
+  border-radius: 1px;
+  transition: width 0.3s ease;
+}
+
+.stm-pci-bar--pos {
+  left: 50%;
+  background: rgba(76, 202, 110, 0.75);
+}
+
+.stm-pci-bar--neg {
+  right: 50%;
+  background: rgba(255, 90, 90, 0.75);
+}
 
 .stm-tr:hover { background: rgba(0, 200, 255, 0.04); }
 

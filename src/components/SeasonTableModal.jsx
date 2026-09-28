@@ -43,15 +43,31 @@ function bossImageUrl(unitId) {
   return `${CDN}/${unitId}_BattlePreviewPopUp.png`;
 }
 
-function fmt(n) {
+function fmtPci(n) {
   if (n == null) return '—';
-  const abs = Math.abs(n);
-  const sign = n >= 0 ? '+' : '−';
-  return `${sign}${abs.toLocaleString('en-US', { maximumFractionDigits: 0 })}`;
+  const sign = n >= 0 ? '+' : '';
+  return `${sign}${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}%`;
 }
 
 function fmtDmg(n) {
   return n != null ? n.toLocaleString('en-US') : '—';
+}
+
+// Bar chart: ±PCI_SCALE % maps to half the bar width. Values beyond are capped.
+const PCI_SCALE = 20;
+
+function PciBar({ pci }) {
+  const capped    = Math.min(Math.abs(pci ?? 0), PCI_SCALE);
+  const widthPct  = (capped / PCI_SCALE) * 50;
+  const isPos     = (pci ?? 0) >= 0;
+  return (
+    <div className="stm-pci-bar-wrap">
+      <div
+        className={`stm-pci-bar ${isPos ? 'stm-pci-bar--pos' : 'stm-pci-bar--neg'}`}
+        style={{ width: `${widthPct}%` }}
+      />
+    </div>
+  );
 }
 
 // ── Sub-components ────────────────────────────────────────────────────────────
@@ -263,7 +279,8 @@ export default function SeasonTableModal({ currentSeason, onClose }) {
                       <tr>
                         <th className="stm-th stm-th--rank">#</th>
                         <th className="stm-th">Player</th>
-                        <th className="stm-th stm-th--right">Total Delta</th>
+                        <th className="stm-th stm-th--right stm-th--pci">%PCI</th>
+                        <th className="stm-th stm-th--chart"></th>
                         <th className="stm-th stm-th--right">Attacks</th>
                         <th className="stm-th stm-th--center">Detail</th>
                       </tr>
@@ -273,8 +290,11 @@ export default function SeasonTableModal({ currentSeason, onClose }) {
                         <tr key={r.userId} className="stm-tr">
                           <td className="stm-td stm-td--rank">{i + 1}</td>
                           <td className="stm-td stm-td--name">{r.playerName}</td>
-                          <td className={`stm-td stm-td--right stm-td--delta${r.totalDelta >= 0 ? ' stm-td--pos' : ' stm-td--neg'}`}>
-                            {fmt(r.totalDelta)}
+                          <td className={`stm-td stm-td--right stm-td--pci${(r.pciPercent ?? 0) >= 0 ? ' stm-td--pos' : ' stm-td--neg'}`}>
+                            {fmtPci(r.pciPercent)}
+                          </td>
+                          <td className="stm-td stm-td--chart">
+                            <PciBar pci={r.pciPercent} />
                           </td>
                           <td className="stm-td stm-td--right">{r.validAttackCount}</td>
                           <td className="stm-td stm-td--center">

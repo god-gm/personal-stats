@@ -109,6 +109,20 @@ function EncounterCard({ enc }) {
 
         <div className="stm-enc-card__stats">
           <span className="stm-enc-card__dmg">{fmtDmg(enc.damageDealt)}</span>
+          {enc.guildAverage > 0 && (
+            <span className="stm-enc-card__guild-avg" title="Media gilda">
+              <span className="stm-enc-card__guild-avg-label">Ø</span>
+              {fmtDmg(Math.round(enc.guildAverage))}
+            </span>
+          )}
+          <span className="stm-enc-card__hp">
+            <span className="stm-enc-card__hp-label">HP</span>
+            <span className="stm-enc-card__hp-val">{fmtDmg(enc.maxHp)}</span>
+            <span className="stm-enc-card__hp-arrow">→</span>
+            <span className={`stm-enc-card__hp-val${enc.remainingHp === 0 ? ' stm-enc-card__hp-val--zero' : ''}`}>
+              {fmtDmg(enc.remainingHp)}
+            </span>
+          </span>
           {enc.killingBlow && (
             <span className="stm-enc-card__kb" title="Killing Blow">
               {isBoss ? '💀 KB (excl.)' : isSide && enc.damageDealt === enc.maxHp ? '💀 One-shot' : '💀 KB (excl.)'}

@@ -337,6 +337,49 @@
   font-variant-numeric: tabular-nums;
 }
 
+.stm-enc-card__guild-avg {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.82rem;
+  color: #607a90;
+  font-variant-numeric: tabular-nums;
+}
+
+.stm-enc-card__guild-avg-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.5rem;
+  color: #3a5870;
+  letter-spacing: 0.04em;
+}
+
+.stm-enc-card__hp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.82rem;
+  color: #4a7090;
+  font-variant-numeric: tabular-nums;
+}
+
+.stm-enc-card__hp-label {
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.48rem;
+  letter-spacing: 0.08em;
+  color: #3a5870;
+  text-transform: uppercase;
+}
+
+.stm-enc-card__hp-arrow {
+  color: #3a5870;
+  font-size: 0.75rem;
+}
+
+.stm-enc-card__hp-val { color: #607a90; }
+.stm-enc-card__hp-val--zero { color: #ff5a5a; font-weight: 700; }
+
 .stm-enc-card__kb {
   font-family: 'Orbitron', sans-serif;
   font-size: 0.52rem;

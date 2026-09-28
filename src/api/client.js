@@ -112,3 +112,16 @@ export async function loadAssignment(name, seasonNumber) {
 export async function checkAssignmentExists(name, seasonNumber) {
   return request(`/api/assignments/exists?name=${encodeURIComponent(name)}&seasonNumber=${seasonNumber}`);
 }
+
+// ── Season Ranking ───────────────────────────────────────────────────────────
+
+export async function getSeasonRanking(seasonNumber) {
+  const url = seasonNumber != null
+    ? `/api/admin/season-ranking?seasonNumber=${seasonNumber}`
+    : '/api/admin/season-ranking';
+  return request(url);
+}
+
+export async function getSeasonPlayerDetail(seasonNumber, userId) {
+  return request(`/api/admin/season-player-detail?seasonNumber=${seasonNumber}&userId=${encodeURIComponent(userId)}`);
+}

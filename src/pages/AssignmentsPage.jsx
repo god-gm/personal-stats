@@ -71,6 +71,8 @@ export default function AssignmentsPage() {
   const [loadSeason, setLoadSeason] = useState('');
   const [loadError, setLoadError] = useState('');
   const [exporting, setExporting] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const importInputRef = useRef(null);
 
   // Toast notification
   const [toast, setToast] = useState(null); // { message, type: 'success'|'error' }
@@ -564,6 +566,90 @@ export default function AssignmentsPage() {
     }
   }
 
+  // ── Import ───────────────────────────────────────────────────────────────
+  async function handleImport(e) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file || !stats) return;
+
+    setImporting(true);
+    try {
+      const { default: ExcelJS } = await import('exceljs');
+      const workbook = new ExcelJS.Workbook();
+      await workbook.xlsx.load(await file.arrayBuffer());
+
+      const ws = workbook.worksheets[0];
+      if (!ws) throw new Error('Nessun foglio trovato nel file.');
+
+      const headerRow = ws.getRow(1);
+      if (headerRow.getCell(1).value !== 'PLAYER' || headerRow.getCell(2).value !== 'TOT. CONS.') {
+        throw new Error('Formato non valido: intestazioni colonne non corrispondenti.');
+      }
+
+      const targets = allTargetKeys();
+      const headerToKey = {};
+      for (const t of targets) {
+        const label = t.isBoss
+          ? `[${t.boss.levelDesc}][B] ${t.label}`
+          : `[${t.boss.levelDesc}][S] ${t.label}`;
+        headerToKey[label] = t.key;
+      }
+
+      const targetColMap = [];
+      for (let c = 3; c <= ws.columnCount; c++) {
+        const header = headerRow.getCell(c).value;
+        if (!header) break;
+        if (!(header in headerToKey)) {
+          throw new Error(`Formato non valido: colonna sconosciuta "${header}".`);
+        }
+        targetColMap.push({ col: c, key: headerToKey[header] });
+      }
+      if (targetColMap.length !== targets.length) {
+        throw new Error('Formato non valido: numero di colonne target non corrispondente.');
+      }
+
+      const nameToUserId = {};
+      for (const pa of stats.playerAssignments) nameToUserId[pa.playerName] = pa.userId;
+      for (const ep of extraPlayers) {
+        if (ep.userId && ep.playerName) nameToUserId[ep.playerName] = ep.userId;
+      }
+
+      const VALID_VALUES = new Set(['consigliato', 'affrontabile', 'sconsigliato']);
+      const newAssignments = { ...assignments };
+      let importedCount = 0;
+
+      ws.eachRow((row, rowNum) => {
+        if (rowNum === 1) return;
+        const playerName = row.getCell(1).value;
+        if (!playerName || playerName === 'TOTALE') return;
+
+        const userId = nameToUserId[playerName];
+        if (!userId) return;
+
+        const playerAssign = { ...(newAssignments[userId] || {}) };
+        for (const { col, key } of targetColMap) {
+          const raw = row.getCell(col).value;
+          const normalized = typeof raw === 'string' ? raw.toLowerCase() : null;
+          if (normalized && VALID_VALUES.has(normalized)) {
+            playerAssign[key] = normalized;
+          } else if (raw !== null && raw !== undefined) {
+            throw new Error(`Valore non valido "${raw}" per il giocatore "${playerName}".`);
+          }
+        }
+        newAssignments[userId] = playerAssign;
+        importedCount++;
+      });
+
+      skipAssignmentInitRef.current = true;
+      setAssignments(newAssignments);
+      showToast(`Importati ${importedCount} giocatori dall'excel.`, 'success');
+    } catch (err) {
+      showToast('Errore importazione: ' + (err.message || 'sconosciuto'), 'error');
+    } finally {
+      setImporting(false);
+    }
+  }
+
   function handleLogout() {
     localStorage.removeItem('jwt_token');
     localStorage.removeItem('user_game_name');
@@ -908,6 +994,13 @@ export default function AssignmentsPage() {
               </table>
             </div>
 
+            <input
+              ref={importInputRef}
+              type="file"
+              accept=".xlsx"
+              style={{ display: 'none' }}
+              onChange={handleImport}
+            />
             <div className="assign-export-row">
               <button
                 className="assign-wolf-btn"
@@ -915,13 +1008,22 @@ export default function AssignmentsPage() {
               >
                 WOLF MODE
               </button>
-<button
-                className="assign-export-btn"
-                disabled={exporting}
-                onClick={handleExport}
-              >
-                {exporting ? '...' : 'EXPORT'}
-              </button>
+              <div className="assign-export-actions">
+                <button
+                  className="assign-import-btn"
+                  disabled={importing || !stats}
+                  onClick={() => importInputRef.current?.click()}
+                >
+                  {importing ? '...' : 'IMPORT'}
+                </button>
+                <button
+                  className="assign-export-btn"
+                  disabled={exporting}
+                  onClick={handleExport}
+                >
+                  {exporting ? '...' : 'EXPORT'}
+                </button>
+              </div>
             </div>
           </section>
         )}

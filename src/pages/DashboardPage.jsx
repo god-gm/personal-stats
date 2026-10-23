@@ -8,6 +8,9 @@ import PlayerPerformancesModal from '../components/PlayerPerformancesModal';
 import SeasonTableModal from '../components/SeasonTableModal';
 import './DashboardPage.css';
 
+// Imposta a true per mostrare di nuovo i pulsanti TOKEN USAGE e GUILD STATS nell'admin panel.
+const SHOW_TOKEN_AND_GUILD_BUTTONS = false;
+
 export default function DashboardPage() {
   const [data, setData] = useState(null);
   const [guildBest, setGuildBest] = useState({});
@@ -108,18 +111,22 @@ export default function DashboardPage() {
               <div className="dash-admin-panel">
                 <span className="dash-admin-panel__title">ADMIN PANEL</span>
                 <div className="dash-admin-panel__actions">
-                  <button
-                    className="dash-admin-panel__btn"
-                    onClick={() => setActiveAdminModal('token-usage')}
-                  >
-                    TOKEN USAGE
-                  </button>
-                  <button
-                    className="dash-admin-panel__btn"
-                    onClick={() => setActiveAdminModal('guild-stats')}
-                  >
-                    GUILD STATS
-                  </button>
+                  {SHOW_TOKEN_AND_GUILD_BUTTONS && (
+                    <>
+                      <button
+                        className="dash-admin-panel__btn"
+                        onClick={() => setActiveAdminModal('token-usage')}
+                      >
+                        TOKEN USAGE
+                      </button>
+                      <button
+                        className="dash-admin-panel__btn"
+                        onClick={() => setActiveAdminModal('guild-stats')}
+                      >
+                        GUILD STATS
+                      </button>
+                    </>
+                  )}
                   <button
                     className="dash-admin-panel__btn"
                     onClick={() => setActiveAdminModal('player-performances')}

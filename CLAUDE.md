@@ -91,3 +91,6 @@ DashboardPage
 
 ### Styling
 Each component and page has a co-located `.css` file. No CSS framework — plain custom properties and BEM-ish class names. Global reset and CSS variables are in `src/index.css`.
+
+### Note Sviluppo
+Per riabilitare i tasti nascosti nell'admin panel occorre mettere la variabile SHOW_TOKEN_AND_GUILD_BUTTONS a true (si trova in DashboardPage.jsx)

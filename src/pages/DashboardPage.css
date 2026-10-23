@@ -84,6 +84,15 @@
 
 .dash-header__right { display: flex; align-items: center; gap: 1.25rem; }
 
+.dash-header__avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 200, 255, 0.4);
+  object-fit: cover;
+  margin-right: -0.75rem; /* avvicina l'avatar al nome (il gap del contenitore e' 1.25rem) */
+}
+
 .dash-header__player {
   font-family: 'Orbitron', sans-serif;
   font-size: 0.62rem;

@@ -39,6 +39,8 @@ export default function AuthCallbackPage() {
           localStorage.setItem('jwt_token', res.data.token);
           localStorage.setItem('user_game_name', res.data.userGameName);
           localStorage.setItem('user_role', res.data.role || 'USER');
+          if (res.data.avatarUrl) localStorage.setItem('user_avatar_url', res.data.avatarUrl);
+          else localStorage.removeItem('user_avatar_url');
           navigate('/dashboard');
         } else if (res.status === 'DENIED') {
           setError('Operativo non riconosciuto nella gilda. Accesso negato.');

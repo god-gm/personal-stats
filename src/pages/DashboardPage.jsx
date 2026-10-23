@@ -60,6 +60,7 @@ export default function DashboardPage() {
     localStorage.removeItem('jwt_token');
     localStorage.removeItem('user_game_name');
     localStorage.removeItem('user_role');
+    localStorage.removeItem('user_avatar_url');
     navigate('/');
   }
 
@@ -71,6 +72,9 @@ export default function DashboardPage() {
           <span className="dash-header__name">ORDO MALLEUS</span>
         </div>
         <div className="dash-header__right">
+          {localStorage.getItem('user_avatar_url') && (
+            <img className="dash-header__avatar" src={localStorage.getItem('user_avatar_url')} alt="" />
+          )}
           {displayName && <span className="dash-header__player">{displayName}</span>}
           {isAdmin && (
             <button

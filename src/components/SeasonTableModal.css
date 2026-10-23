@@ -44,6 +44,28 @@
   letter-spacing: 0.16em;
 }
 
+.stm-mode-switch {
+  display: flex;
+  margin-right: auto;
+}
+.stm-mode-switch__btn {
+  background: transparent;
+  border: 1px solid rgba(0, 200, 255, 0.3);
+  color: #7fa4bd;
+  font-family: 'Orbitron', sans-serif;
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  padding: 0.25rem 0.6rem;
+  cursor: pointer;
+}
+.stm-mode-switch__btn + .stm-mode-switch__btn {
+  border-left: none;
+}
+.stm-mode-switch__btn--active {
+  background: rgba(0, 200, 255, 0.18);
+  color: #00c8ff;
+}
+
 .stm-modal__header-right {
   display: flex;
   align-items: center;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { getSeasonRanking, getSeasonPlayerDetail } from '../api/client';
+import { getSeasonRanking, getSeasonRankingByType, getSeasonPlayerDetail } from '../api/client';
 import './SeasonTableModal.css';
 
 const CDN = 'https://cdn.ezekiel.snowprintstudios.com';
@@ -145,7 +145,7 @@ function EncounterCard({ enc }) {
             </span>
           )}
           {!enc.killingBlow && enc.excludedFromRanking && (
-            <span className="stm-enc-card__excl">excl. (rarity)</span>
+            <span className="stm-enc-card__excl">excl. (target/rarity)</span>
           )}
         </div>
 
@@ -215,12 +215,16 @@ export default function SeasonTableModal({ currentSeason, onClose }) {
   const [loading, setLoading]               = useState(true);
   const [error, setError]                   = useState('');
   const [detailPlayer, setDetailPlayer]     = useState(null); // { userId, playerName }
+  const [mode, setMode]                     = useState('ALL'); // ALL | BOSS | PRIMES
 
-  const fetchRanking = useCallback((season) => {
+  const fetchRanking = useCallback((season, rankingMode) => {
     setLoading(true);
     setError('');
     setRankingData(null);
-    getSeasonRanking(season)
+    const req = rankingMode === 'ALL'
+      ? getSeasonRanking(season)
+      : getSeasonRankingByType(season, rankingMode);
+    req
       .then((res) => {
         if (res.status === 'OK') setRankingData(res.data);
         else setError(res.message || 'Error loading ranking.');
@@ -230,8 +234,8 @@ export default function SeasonTableModal({ currentSeason, onClose }) {
   }, []);
 
   useEffect(() => {
-    fetchRanking(selectedSeason);
-  }, [selectedSeason, fetchRanking]);
+    fetchRanking(selectedSeason, mode);
+  }, [selectedSeason, mode, fetchRanking]);
 
   const availableSeasons = rankingData?.availableSeasons ?? [currentSeason, currentSeason - 1, currentSeason - 2];
 
@@ -240,6 +244,17 @@ export default function SeasonTableModal({ currentSeason, onClose }) {
       <div className="stm-modal" onClick={(e) => e.stopPropagation()}>
         <div className="stm-modal__header">
           <span className="stm-modal__title">SEASON TABLE</span>
+          <div className="stm-mode-switch">
+            {['ALL', 'BOSS', 'PRIMES'].map((m) => (
+              <button
+                key={m}
+                className={`stm-mode-switch__btn${mode === m ? ' stm-mode-switch__btn--active' : ''}`}
+                onClick={() => { setDetailPlayer(null); setMode(m); }}
+              >
+                {m}
+              </button>
+            ))}
+          </div>
           <div className="stm-modal__header-right">
             <div className="stm-season-selector">
               <label className="stm-season-selector__label">Season</label>

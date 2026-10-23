@@ -122,6 +122,12 @@ export async function getSeasonRanking(seasonNumber) {
   return request(url);
 }
 
+// mode: 'BOSS' | 'PRIMES'
+export async function getSeasonRankingByType(seasonNumber, mode) {
+  const season = seasonNumber != null ? `seasonNumber=${seasonNumber}&` : '';
+  return request(`/api/admin/season-ranking/by-type?${season}mode=${encodeURIComponent(mode)}`);
+}
+
 export async function getSeasonPlayerDetail(seasonNumber, userId) {
   return request(`/api/admin/season-player-detail?seasonNumber=${seasonNumber}&userId=${encodeURIComponent(userId)}`);
 }
